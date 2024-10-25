@@ -17,6 +17,7 @@
     "files": [
       "app/**/*",
       "bin/**/*",
+      "models/*",
       "node_modules/**/*",
       "package.json"
     ],

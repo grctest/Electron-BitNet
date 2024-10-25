@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
 import path from 'path';
 import os from 'os';
 import process from 'process';
@@ -14,72 +14,57 @@ let mainWindow = null;
 let tray = null;
 let inferenceProcess = null;
 
-function runCommand(command) {
-  try {
-      execSync(command, { stdio: 'inherit' });
-  } catch (error) {
-      console.error(`Error occurred while running command: ${error}`);
-      process.exit(1);
-  }
-}
-
 function runInference(args) {
-  const buildDir = 'build';
-  let mainPath;
+  let mainPath = path.join('bin', 'Release', 'llama-cli.exe');
 
-  if (os.platform() === 'win32') {
-      mainPath = path.join(buildDir, 'bin', 'Release', 'llama-cli.exe');
-      if (!fs.existsSync(mainPath)) {
-          mainPath = path.join(buildDir, 'bin', 'llama-cli');
-      }
-  } else {
-      mainPath = path.join(buildDir, 'bin', 'llama-cli');
+  if (!fs.existsSync(mainPath)) {
+    mainPath = path.join('bin', 'llama-cli');
   }
 
   const command = [
-      `"${mainPath}"`,
-      '-m', args.model,
-      '-n', args.n_predict,
-      '-t', args.threads,
-      '-p', `"${args.prompt}"`,
-      '-ngl', '0',
-      '-c', args.ctx_size,
-      '--temp', args.temperature,
-      '-b', '1'
-  ].join(' ');
+    `"${mainPath}"`,
+    '-m', path.join('models', args.model),
+    '-n', args.n_predict,
+    '-t', args.threads,
+    '-p', `"${args.prompt}"`,
+    '-ngl', '0',
+    '-c', args.ctx_size,
+    '--temp', args.temperature,
+    '-b', '1'
+  ];
 
-  inferenceProcess = exec(command);
+  inferenceProcess = spawn(command[0], command.slice(1), { shell: true });
 
   inferenceProcess.stdout.on('data', (data) => {
-      const lines = data.toString().split('\n');
-      lines.forEach(line => {
-          if (line.trim()) {
-              mainWindow.webContents.send('inferenceData', line);
-          }
-      });
-  });
-
-  inferenceProcess.stderr.on('data', (data) => {
-      mainWindow.webContents.send('inferenceError', data);
+    const chars = data.toString();
+    mainWindow.webContents.send('aiResponse', chars);
   });
 
   inferenceProcess.on('close', (code) => {
-      mainWindow.webContents.send('inferenceComplete', code);
-      inferenceProcess = null; // Clear the reference when the process ends
+    mainWindow.webContents.send('aiComplete');
+    inferenceProcess = null;
   });
 }
 
 function signalHandler() {
   if (inferenceProcess) {
-      console.log('Terminating inference process...');
-      inferenceProcess.kill();
+    console.log('Terminating inference process...');
+    try {
+      inferenceProcess.kill('SIGKILL'); // Use SIGKILL to forcefully terminate the process
+      inferenceProcess.stdout.removeAllListeners('data');
+      inferenceProcess.stderr.removeAllListeners('data');
       inferenceProcess = null;
+      console.log('Inference process terminated.');
+    } catch (error) {
+      console.error('Failed to terminate inference process:', error);
+    }
   } else {
-      console.log('No inference process to terminate.');
+    console.log('No inference process to terminate.');
   }
+
+  mainWindow.webContents.send('aiComplete');
+  inferenceProcess = null;
 }
-
-
 
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
@@ -142,7 +127,12 @@ const createWindow = async () => {
     tray?.popUpContextMenu(contextMenu);
   });
 
-  const safeDomains = [""];
+  const safeDomains = [
+    "https://github.com",
+    "https://react.dev/",
+    "https://astro.build/",
+    "https://www.electronjs.org/"
+  ];
 
   ipcMain.on("openURL", (event, arg) => {
     try {
@@ -169,7 +159,7 @@ const createWindow = async () => {
   });
 
   ipcMain.on("stopInference", (event) => {
-      signalHandler();
+    signalHandler();
   });
 
   tray.on("click", () => {

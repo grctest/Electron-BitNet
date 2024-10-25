@@ -25,3 +25,5 @@ pnpm-debug.log*
 
 astroDist
 dist
+# models/ggml-model-i2_s.gguf
+models/ggml-model-i2_s.gguf

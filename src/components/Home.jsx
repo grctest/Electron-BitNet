@@ -24,41 +24,48 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+import ExternalLink from "@/components/ExternalLink.jsx";
+
 export default function Home(properties) {
 
 
-    const [tokenQuantity, setTokenQuantity] = useState(0);
-    const [model, setModel] = useState("models/Llama3-8B-1.58-100B-tokens/ggml-model-i2_s.gguf");
-    const [prompt, setPrompt] = useState("");
+    const [tokenQuantity, setTokenQuantity] = useState(20);
+    const [model, setModel] = useState("ggml-model-i2_s.gguf");
     const [threads, setThreads] = useState(2);
     const [ctxSize, setCtxSize] = useState(2048);
     const [temperature, setTemperature] = useState(0.8);
+
+    const [prompt, setPrompt] = useState("");
 
     const [runningInference, setRunningInference] = useState(false);
     const [aiResponse, setAiResponse] = useState("");
 
     useEffect(() => {
-        // listen for ipcrenderer ai response response chunks
         if (!window.electron) {
             return;
         }
+
         window.electron.onAiResponse((response) => {
-            const totalResponse = aiResponse + response;
-            setAiResponse(totalResponse);
+            setAiResponse((prevAiResponse) => prevAiResponse + response);
+        });
+
+        window.electron.onAiError(() => {
+            setAiResponse((prevAiResponse) => prevAiResponse + "!!! An error occurred while running inference.");
+            setRunningInference(false);
+        });
+
+        window.electron.onAiComplete(() => {
+            setRunningInference(false);
         });
     }, []);
-
-    /*
-        node run_inference.js -m models/Llama3-8B-1.58-100B-tokens/ggml-model-i2_s.gguf -p "tell me how to make money" -n 1000 -temp 0
-    */
 
     return (
         <div className="container mx-auto mt-3 mb-5">
             <Card>
                 <CardHeader>
-                    <CardTitle>Electron BitNet Inference appq</CardTitle>
+                    <CardTitle>Electron BitNet Inference Tool</CardTitle>
                     <CardDescription>
-                        bitnet.cpp is the official inference framework for 1-bit LLMs (e.g., BitNet b1.58). It offers a suite of optimized kernels, that support fast and lossless inference of 1.58-bit models on CPU (with NPU and GPU support coming next).
+                        Microsoft released bitnet.cpp as their official inference framework for 1-bit LLMs (e.g., BitNet b1.58) which runs on CPUs; enjoy!
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -79,19 +86,20 @@ export default function Home(properties) {
                                 }}
                             />
                             <Label>Model</Label>
-                            <Select>
+                            <Select
+                                onValueChange={(model) => {
+                                    setModel(model);
+                                }}
+                                value={model}
+                            >
                                 <SelectTrigger>
                                     <SelectValue>{model}</SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Models</SelectLabel>
-                                        <SelectItem
-                                            onClick={() => {
-                                                setModel("models/Llama3-8B-1.58-100B-tokens/ggml-model-i2_s.gguf");
-                                            }}
-                                        >
-                                            models/Llama3-8B-1.58-100B-tokens/ggml-model-i2_s.gguf
+                                        <SelectItem value="ggml-model-i2_s.gguf">
+                                            ggml-model-i2_s.gguf
                                         </SelectItem>
                                     </SelectGroup>
                                 </SelectContent>
@@ -147,6 +155,7 @@ export default function Home(properties) {
                                     !runningInference
                                     ? <Button
                                         onClick={() => {
+                                            setAiResponse("");
                                             setRunningInference(true);
                                             window.electron.runInference({
                                                 model,
@@ -167,7 +176,7 @@ export default function Home(properties) {
                                 
                                 <Button
                                     onClick={() => {
-                                        window.electron.stopInference();
+                                        window.electron.stopInference({});
                                     }}
                                 >
                                     Stop Inference
@@ -180,10 +189,39 @@ export default function Home(properties) {
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter>
-                <p>Footer</p>
-                </CardFooter>
             </Card>
+
+            <div className="grid grid-cols-1 mt-3">
+                <h4 className="text-center">
+                    <ExternalLink
+                        type="text"
+                        text={`MIT Licensed`}
+                        gradient
+                        hyperlink={"https://github.com/grctest/Electron-BitNet"}
+                    />
+                    {" built with "}
+                    <ExternalLink
+                        type="text"
+                        text="Astro"
+                        gradient
+                        hyperlink={`https://astro.build/`}
+                    />
+                    {" , "}
+                    <ExternalLink
+                        type="text"
+                        text="React"
+                        gradient
+                        hyperlink={`https://react.dev/`}
+                    />
+                    {" & "}
+                    <ExternalLink
+                        type="text"
+                        text="Electron"
+                        gradient
+                        hyperlink={`https://www.electronjs.org/`}
+                    />
+                </h4>
+            </div>
         </div>
     );
 }

@@ -8,6 +8,16 @@ contextBridge.exposeInMainWorld("electron", {
       func(data);
     });
   },
+  onAiError: (func) => {
+    ipcRenderer.on("aiError", (event) => {
+      func();
+    });
+  },
+  onAiComplete: (func) => {
+    ipcRenderer.on("aiComplete", (event) => {
+      func();
+    });
+  },
   runInference: async (args) => ipcRenderer.send("runInference", args),
-  stopInference: async () => ipcRenderer.send("stopInference")
+  stopInference: async (args) => ipcRenderer.send("stopInference", args)
 });
