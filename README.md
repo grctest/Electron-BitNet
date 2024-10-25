@@ -1,6 +1,8 @@
 # Electron-BitNet
 
-Attempting to run Microsoft's BitNet LLM via Electron (Sans Python)
+![image](https://github.com/user-attachments/assets/ecb23e77-ca25-4c2d-b8cc-3f3b65525817)
+
+Running Microsoft's BitNet via [Astro](https://astro.build/), [React](https://react.dev/) & [Electron](https://www.electronjs.org/)!
 
 How to setup this application:
 
