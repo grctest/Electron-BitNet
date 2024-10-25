@@ -1,0 +1,2 @@
+(()=>{"use strict";const e=require("electron");e.contextBridge.exposeInMainWorld("electron",{openURL:async n=>e.ipcRenderer.send("openURL",n),onAiResponse:n=>{e.ipcRenderer.on("aiResponse",((e,r)=>{n(r)}))},onAiError:n=>{e.ipcRenderer.on("aiError",(e=>{n()}))},onAiComplete:n=>{e.ipcRenderer.on("aiComplete",(e=>{n()}))},runInference:async n=>e.ipcRenderer.send("runInference",n),stopInference:async n=>e.ipcRenderer.send("stopInference",n)})})();
+//# sourceMappingURL=preload.js.map
