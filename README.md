@@ -1,16 +1,12 @@
 # Electron-BitNet
 
-![image](https://github.com/user-attachments/assets/ecb23e77-ca25-4c2d-b8cc-3f3b65525817)
-
 Running Microsoft's BitNet via [Astro](https://astro.build/), [React](https://react.dev/) & [Electron](https://www.electronjs.org/)!
 
 How to setup this application:
 
 - Use python to prepare 1-bit models
   - Follow [Microsoft's instructions](https://github.com/microsoft/BitNet?tab=readme-ov-file#installation), installing visual studio 2022 (including c++ desktop build tools & clang build tools) and preparing the 1-bit model for use.
-- Include your generated model within the `models` folder
-  - Currently supports `ggml-model-i2_s.gguf` which is built from `HF1BitLLM/Llama3-8B-1.58-100B-tokens` following [Microsoft's instructions](https://github.com/microsoft/BitNet?tab=readme-ov-file#installation).
-- Optionally include your own generated bin release files within the `bin\Release` folder
+- Supports generated gguf models.
 - Run the commands below to build and run the app
 
 | Command                                | Action                                           |
@@ -29,4 +25,4 @@ Note: At the moment only Windows is supported, Linux support may come in the fut
 
 ---
 
-Place your generated 1-bit models (e.g. ggml-model-i2_s.gguf) in the `models` folder.
+Prefer to use an installer? Check out the [latest windows releases](https://github.com/grctest/Electron-BitNet/releases)!
