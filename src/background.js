@@ -15,10 +15,10 @@ let tray = null;
 let inferenceProcess = null;
 
 function runInference(args) {
-  let mainPath = path.join('bin', 'Release', 'llama-cli.exe');
+  let mainPath = path.join(app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
 
   if (!fs.existsSync(mainPath)) {
-    mainPath = path.join('bin', 'llama-cli');
+    mainPath = path.join(app.getAppPath(), 'bin', 'llama-cli');
   }
 
   const command = [

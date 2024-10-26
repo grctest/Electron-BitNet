@@ -14,6 +14,10 @@
     "appId": "ElectronBitnet",
     "productName": "ElectronBitnet",
     "artifactName": "ElectronBitnet.${ext}",
+    "asar": false,
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false,
+    "includeSubNodeModules": true,
     "files": [
       "app/**/*",
       "bin/**/*",
@@ -24,6 +28,10 @@
       {
         "from": "./astroDist",
         "to": "astroDist"
+      },
+      {
+        "from": "./bin",
+        "to": "bin"
       }
     ],
     "directories": {
