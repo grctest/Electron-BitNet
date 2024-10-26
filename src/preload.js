@@ -2,7 +2,6 @@ import { ipcRenderer, contextBridge } from "electron";
 
 contextBridge.exposeInMainWorld("electron", {
   openURL: async (target) => ipcRenderer.send("openURL", target),
-  // on aiResponse
   onAiResponse: (func) => {
     ipcRenderer.on("aiResponse", (event, data) => {
       func(data);
@@ -19,5 +18,6 @@ contextBridge.exposeInMainWorld("electron", {
     });
   },
   runInference: async (args) => ipcRenderer.send("runInference", args),
-  stopInference: async (args) => ipcRenderer.send("stopInference", args)
+  stopInference: async (args) => ipcRenderer.send("stopInference", args),
+  openFileDialog: async () => ipcRenderer.invoke("openFileDialog"),
 });

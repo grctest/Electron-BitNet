@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { UploadIcon } from "@radix-ui/react-icons";
 
 import {
   Card,
@@ -14,23 +15,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectLabel,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-
 import ExternalLink from "@/components/ExternalLink.jsx";
 
 export default function Home(properties) {
-
-
     const [tokenQuantity, setTokenQuantity] = useState(20);
-    const [model, setModel] = useState("ggml-model-i2_s.gguf");
+    const [model, setModel] = useState(""); // proven compatible: ggml-model-i2_s.gguf
     const [threads, setThreads] = useState(2);
     const [ctxSize, setCtxSize] = useState(2048);
     const [temperature, setTemperature] = useState(0.8);
@@ -39,6 +28,13 @@ export default function Home(properties) {
 
     const [runningInference, setRunningInference] = useState(false);
     const [aiResponse, setAiResponse] = useState("");
+
+    const handleFileSelect = async () => {
+        const filePaths = await window.electron.openFileDialog();
+        if (filePaths.length > 0) {
+            setModel(filePaths[0]);
+        }
+    };
 
     useEffect(() => {
         if (!window.electron) {
@@ -86,24 +82,14 @@ export default function Home(properties) {
                                 }}
                             />
                             <Label>Model</Label>
-                            <Select
-                                onValueChange={(model) => {
-                                    setModel(model);
-                                }}
-                                value={model}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue>{model}</SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectLabel>Models</SelectLabel>
-                                        <SelectItem value="ggml-model-i2_s.gguf">
-                                            ggml-model-i2_s.gguf
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                            <div className="grid grid-cols-4 gap-2">
+                                <div className="col-span-3">
+                                    <Input readOnly value={model ? model.split("\\").at(-1) : ""} />
+                                </div>
+                                <Button variant="outline" onClick={handleFileSelect}>
+                                    <UploadIcon />
+                                </Button>
+                            </div>
                             <Label>Threads</Label>
                             <Input
                                 placeholder={2}
@@ -152,8 +138,11 @@ export default function Home(properties) {
                             />
                             <div className="grid grid-cols-2 gap-2">
                                 {
-                                    !runningInference
-                                    ? <Button
+                                    runningInference || !model
+                                    ? <Button disabled>
+                                        Run Inference
+                                    </Button>
+                                    : <Button
                                         onClick={() => {
                                             setAiResponse("");
                                             setRunningInference(true);
@@ -169,9 +158,6 @@ export default function Home(properties) {
                                     >
                                         Run Inference
                                     </Button>
-                                    : <Button disabled>
-                                        Run Inference
-                                    </Button>
                                 }
                                 
                                 <Button
@@ -185,6 +171,7 @@ export default function Home(properties) {
 
                         </div>
                         <div className="col-span-2">
+                            <b>Response</b>
                             <Textarea readOnly={true} rows={20} className="w-full" value={aiResponse} />
                         </div>
                     </div>

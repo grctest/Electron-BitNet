@@ -12,12 +12,11 @@
   },
   "build": {
     "appId": "ElectronBitnet",
-    "productName": "Electron Bitnet",
+    "productName": "ElectronBitnet",
     "artifactName": "ElectronBitnet.${ext}",
     "files": [
       "app/**/*",
       "bin/**/*",
-      "models/*",
       "node_modules/**/*",
       "package.json"
     ],

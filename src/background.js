@@ -6,7 +6,7 @@ import fs from 'fs';
 import url from "url";
 import express from "express";
 
-import { app, BrowserWindow, Menu, Tray, ipcMain, screen, shell } from "electron";
+import { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog } from "electron";
 
 import { initApplicationMenu } from "./lib/applicationMenu.js";
 
@@ -23,7 +23,7 @@ function runInference(args) {
 
   const command = [
     `"${mainPath}"`,
-    '-m', path.join('models', args.model),
+    '-m', args.model,
     '-n', args.n_predict,
     '-t', args.threads,
     '-p', `"${args.prompt}"`,
@@ -160,6 +160,14 @@ const createWindow = async () => {
 
   ipcMain.on("stopInference", (event) => {
     signalHandler();
+  });
+
+  ipcMain.handle('openFileDialog', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile'],
+        filters: [{ name: 'GGUF Files', extensions: ['gguf'] }]
+    });
+    return result.filePaths;
   });
 
   tray.on("click", () => {
