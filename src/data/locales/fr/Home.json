@@ -1,0 +1,22 @@
+{
+    "title": "Outil d'inférence Electron BitNet",
+    "description": "Microsoft a publié bitnet.cpp comme cadre d'inférence officiel pour les LLM 1 bit (par exemple, BitNet b1.58) qui s'exécute sur des processeurs ; ",
+    "commandOptions": "Options de commande",
+    "numberOfTokens": "Nombre de jetons à prédire",
+    "model": "Modèle",
+    "threads": "Sujets",
+    "contextSize": "Taille du contexte",
+    "temperature": "Température",
+    "prompt": "Rapide",
+    "numberOfTokensInfo": "Il s'agit de la quantité de jetons (mots) à générer lors de l'exécution du cadre d'inférence.",
+    "modelInfo": "Entrez le chemin vers le ' quantifié{{fileFormat}}'fichier modèle généré à l'aide de BitNet de Microsoft'{{script}}' scénario.",
+    "threadsInfo": "Le nombre de threads à utiliser pour exécuter l’inférence. ",
+    "contextSizeInfo": "Taille du contexte d’invite. ",
+    "temperatureInfo": "Un hyperparamètre qui contrôle le caractère aléatoire du texte généré. ",
+    "promptInfo": "L'invite à partir de laquelle générer du texte. ",
+    "runInference": "Exécuter l'inférence",
+    "stopInference": "Arrêter l'inférence",
+    "response": "Réponse",
+    "license": "{{license}} Code sous licence",
+    "builtWith": "construit avec"
+  }

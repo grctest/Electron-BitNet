@@ -416,6 +416,14 @@ if (currentOS === "win32" || currentOS === "linux") {
     createWindow();
   });
 
+  electron__WEBPACK_IMPORTED_MODULE_7__.app.on('before-quit', (event) => {
+    signalHandler();
+  });
+  
+  electron__WEBPACK_IMPORTED_MODULE_7__.app.on('will-quit', (event) => {
+    signalHandler();
+  });
+
   electron__WEBPACK_IMPORTED_MODULE_7__.app.on("window-all-closed", () => {
     if ((process__WEBPACK_IMPORTED_MODULE_3___default().platform) !== "darwin") {
       electron__WEBPACK_IMPORTED_MODULE_7__.app.quit();

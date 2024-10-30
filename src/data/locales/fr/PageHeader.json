@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "Tapez une commande ou recherchez...",
+  "noResultsFound": "Aucun résultat trouvé.",
+  "english": "Anglais ({{locale}})",
+  "danish": "danois ({{locale}})",
+  "german": "Allemand ({{locale}})",
+  "spanish": "Espagnol ({{locale}})",
+  "french": "Français ({{locale}})",
+  "italian": "italien ({{locale}})",
+  "japanese": "Japonais ({{locale}})",
+  "korean": "coréen ({{locale}})",
+  "portuguese": "portugais ({{locale}})",
+  "thai": "Thaï ({{locale}})",
+  "index": "Tableau de bord d'inférence",
+  "back": "Retourner",
+  "llmFunctionality": "Fonctionnalité LLM",
+  "about": "À propos"
+}

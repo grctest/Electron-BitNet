@@ -202,6 +202,14 @@ if (currentOS === "win32" || currentOS === "linux") {
     createWindow();
   });
 
+  app.on('before-quit', (event) => {
+    signalHandler();
+  });
+  
+  app.on('will-quit', (event) => {
+    signalHandler();
+  });
+
   app.on("window-all-closed", () => {
     if (process.platform !== "darwin") {
       app.quit();

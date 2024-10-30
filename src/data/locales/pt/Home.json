@@ -1,0 +1,22 @@
+{
+    "title": "Ferramenta de inferência Electron BitNet",
+    "description": "A Microsoft lançou o bitnet.cpp como sua estrutura de inferência oficial para LLMs de 1 bit (por exemplo, BitNet b1.58) que roda em CPUs; ",
+    "commandOptions": "Opções de comando",
+    "numberOfTokens": "Número de tokens para prever",
+    "model": "Modelo",
+    "threads": "Tópicos",
+    "contextSize": "Tamanho do contexto",
+    "temperature": "Temperatura",
+    "prompt": "Incitar",
+    "numberOfTokensInfo": "Esta é a quantidade de tokens (palavras) a serem gerados a partir da execução da estrutura de inferência.",
+    "modelInfo": "Insira o caminho para o quantizado '{{fileFormat}}'arquivo de modelo gerado usando o BitNet da Microsoft'{{script}}'roteiro.",
+    "threadsInfo": "O número de threads a serem usados ​​para executar a inferência. ",
+    "contextSizeInfo": "Tamanho do contexto de prompt. ",
+    "temperatureInfo": "Um hiperparâmetro que controla a aleatoriedade do texto gerado. ",
+    "promptInfo": "O prompt para gerar texto. ",
+    "runInference": "Executar inferência",
+    "stopInference": "Parar inferência",
+    "response": "Resposta",
+    "license": "{{license}} Código licenciado",
+    "builtWith": "construído com"
+  }

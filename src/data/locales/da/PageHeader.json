@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "Skriv en kommando eller søg...",
+  "noResultsFound": "Ingen resultater fundet.",
+  "english": "engelsk ({{locale}})",
+  "danish": "dansk ({{locale}})",
+  "german": "tysk ({{locale}})",
+  "spanish": "spansk ({{locale}})",
+  "french": "fransk ({{locale}})",
+  "italian": "italiensk ({{locale}})",
+  "japanese": "japansk ({{locale}})",
+  "korean": "koreansk ({{locale}})",
+  "portuguese": "portugisisk ({{locale}})",
+  "thai": "Thai ({{locale}})",
+  "index": "Inferens Dashboard",
+  "back": "Gå tilbage",
+  "llmFunctionality": "LLM funktionalitet",
+  "about": "Om"
+}

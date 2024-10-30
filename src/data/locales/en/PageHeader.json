@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "Type a command or search...",
+  "noResultsFound": "No results found.",
+  "english": "English ({{locale}})",
+  "danish": "Danish ({{locale}})",
+  "german": "German ({{locale}})",
+  "spanish": "Spanish ({{locale}})",
+  "french": "French ({{locale}})",
+  "italian": "Italian ({{locale}})",
+  "japanese": "Japanese ({{locale}})",
+  "korean": "Korean ({{locale}})",
+  "portuguese": "Portuguese ({{locale}})",
+  "thai": "Thai ({{locale}})",
+  "index": "Inference Dashboard",
+  "back": "Go back",
+  "llmFunctionality": "LLM Functionality",
+  "about": "About"
+}

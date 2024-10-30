@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { UploadIcon } from "@radix-ui/react-icons";
+import { useTranslation } from "react-i18next";
+import { i18n as i18nInstance, locale } from "@/lib/i18n.js";
 
 import {
   Card,
@@ -16,8 +18,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 import ExternalLink from "@/components/ExternalLink.jsx";
+import HoverInfo from "@/components/HoverInfo.jsx";
 
 export default function Home(properties) {
+    const { t, i18n } = useTranslation(locale.get(), { i18n: i18nInstance });
+
     const [tokenQuantity, setTokenQuantity] = useState(20);
     const [model, setModel] = useState(""); // proven compatible: ggml-model-i2_s.gguf
     const [threads, setThreads] = useState(2);
@@ -59,16 +64,19 @@ export default function Home(properties) {
         <div className="container mx-auto mt-3 mb-5">
             <Card>
                 <CardHeader>
-                    <CardTitle>Electron BitNet Inference Tool</CardTitle>
+                    <CardTitle>{t("Home:title")}</CardTitle>
                     <CardDescription>
-                        Microsoft released bitnet.cpp as their official inference framework for 1-bit LLMs (e.g., BitNet b1.58) which runs on CPUs; enjoy!
+                        {t("Home:description")}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-4 gap-2">
                         <div className="col-span-2 grid grid-cols-1 gap-2">
-                            <b>Command Options</b>
-                            <Label>Number of tokens to predict</Label>
+                            <b>{t("Home:commandOptions")}</b>
+                            <HoverInfo
+                                content={t("Home:numberOfTokensInfo")}
+                                header={t("Home:numberOfTokens")}
+                            />
                             <Input
                                 placeholder={0}
                                 value={tokenQuantity}
@@ -81,7 +89,10 @@ export default function Home(properties) {
                                     }
                                 }}
                             />
-                            <Label>Model</Label>
+                            <HoverInfo
+                                content={t("Home:modelInfo", {fileFormat: "GGUF", script: "setup_env.py"})}
+                                header={t("Home:model")}
+                            />
                             <div className="grid grid-cols-4 gap-2">
                                 <div className="col-span-3">
                                     <Input readOnly value={model ? model.split("\\").at(-1) : ""} />
@@ -90,7 +101,10 @@ export default function Home(properties) {
                                     <UploadIcon />
                                 </Button>
                             </div>
-                            <Label>Threads</Label>
+                            <HoverInfo
+                                content={t("Home:threadsInfo")}
+                                header={t("Home:threads")}
+                            />
                             <Input
                                 placeholder={2}
                                 value={threads}
@@ -103,9 +117,13 @@ export default function Home(properties) {
                                     }
                                 }}
                             />
-                            <Label>Context size</Label>
+                            <HoverInfo
+                                content={t("Home:contextSizeInfo")}
+                                header={t("Home:contextSize")}
+                            />
                             <Input
                                 placeholder={2048}
+                                step={1}
                                 value={ctxSize}
                                 type="number"
                                 onInput={(e) => {
@@ -116,9 +134,13 @@ export default function Home(properties) {
                                     }
                                 }}
                             />
-                            <Label>Temperature</Label>
+                            <HoverInfo
+                                content={t("Home:temperatureInfo")}
+                                header={t("Home:temperature")}
+                            />
                             <Input
                                 placeholder={0.8}
+                                step={0.1}
                                 value={temperature}
                                 type="number"
                                 onInput={(e) => {
@@ -129,7 +151,10 @@ export default function Home(properties) {
                                     }
                                 }}
                             />
-                            <Label>Prompt</Label>
+                            <HoverInfo
+                                content={t("Home:promptInfo")}
+                                header={t("Home:prompt")}
+                            />
                             <Textarea
                                 value={prompt}
                                 onInput={(e) => {
@@ -140,7 +165,7 @@ export default function Home(properties) {
                                 {
                                     runningInference || !model
                                     ? <Button disabled>
-                                        Run Inference
+                                        {t("Home:runInference")}
                                     </Button>
                                     : <Button
                                         onClick={() => {
@@ -156,7 +181,7 @@ export default function Home(properties) {
                                             });
                                         }}
                                     >
-                                        Run Inference
+                                        {t("Home:runInference")}
                                     </Button>
                                 }
                                 
@@ -165,13 +190,13 @@ export default function Home(properties) {
                                         window.electron.stopInference({});
                                     }}
                                 >
-                                    Stop Inference
+                                    {t("Home:stopInference")}
                                 </Button>
                             </div>
 
                         </div>
                         <div className="col-span-2">
-                            <b>Response</b>
+                            <b>{t("Home:response")}</b>
                             <Textarea readOnly={true} rows={20} className="w-full" value={aiResponse} />
                         </div>
                     </div>
@@ -182,18 +207,18 @@ export default function Home(properties) {
                 <h4 className="text-center">
                     <ExternalLink
                         type="text"
-                        text={`MIT Licensed`}
+                        text={t("Home:license", { license: "MIT" })}
                         gradient
                         hyperlink={"https://github.com/grctest/Electron-BitNet"}
                     />
-                    {" built with "}
+                    {" " + t("Home:builtWith") + " "}
                     <ExternalLink
                         type="text"
                         text="Astro"
                         gradient
                         hyperlink={`https://astro.build/`}
                     />
-                    {" , "}
+                    {", "}
                     <ExternalLink
                         type="text"
                         text="React"

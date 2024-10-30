@@ -1,0 +1,22 @@
+{
+    "title": "Electron BitNet-Inferenztool",
+    "description": "Microsoft hat bitnet.cpp als offizielles Inferenz-Framework für 1-Bit-LLMs (z. B. BitNet b1.58) veröffentlicht, das auf CPUs läuft; ",
+    "commandOptions": "Befehlsoptionen",
+    "numberOfTokens": "Anzahl der vorherzusagenden Token",
+    "model": "Modell",
+    "threads": "Themen",
+    "contextSize": "Kontextgröße",
+    "temperature": "Temperatur",
+    "prompt": "Prompt",
+    "numberOfTokensInfo": "Dies ist die Menge an Token (Wörtern), die durch die Ausführung des Inferenz-Frameworks generiert werden sollen.",
+    "modelInfo": "Geben Sie den Pfad zum quantisierten ' ein.{{fileFormat}}'Modelldatei, die mit dem BitNet von Microsoft generiert wurde'{{script}}' Skript.",
+    "threadsInfo": "Die Anzahl der Threads, die zum Ausführen der Inferenz verwendet werden sollen. ",
+    "contextSizeInfo": "Größe des Eingabeaufforderungskontexts. ",
+    "temperatureInfo": "Ein Hyperparameter, der die Zufälligkeit des generierten Texts steuert. ",
+    "promptInfo": "Die Eingabeaufforderung, aus der Text generiert werden soll. ",
+    "runInference": "Inferenz ausführen",
+    "stopInference": "Stoppen Sie die Schlussfolgerung",
+    "response": "Antwort",
+    "license": "{{license}} Lizenzierter Code",
+    "builtWith": "gebaut mit"
+  }

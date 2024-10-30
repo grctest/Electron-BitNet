@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "พิมพ์คำสั่งหรือค้นหา...",
+  "noResultsFound": "ไม่พบผลลัพธ์",
+  "english": "ภาษาอังกฤษ ({{locale}}-",
+  "danish": "ภาษาเดนมาร์ก ({{locale}}-",
+  "german": "เยอรมัน ({{locale}}-",
+  "spanish": "สเปน ({{locale}}-",
+  "french": "ภาษาฝรั่งเศส ({{locale}}-",
+  "italian": "ภาษาอิตาลี ({{locale}}-",
+  "japanese": "ญี่ปุ่น ({{locale}}-",
+  "korean": "เกาหลี ({{locale}}-",
+  "portuguese": "โปรตุเกส ({{locale}}-",
+  "thai": "แบบไทย ({{locale}}-",
+  "index": "แดชบอร์ดการอนุมาน",
+  "back": "กลับไป",
+  "llmFunctionality": "ฟังก์ชั่น LLM",
+  "about": "เกี่ยวกับ"
+}

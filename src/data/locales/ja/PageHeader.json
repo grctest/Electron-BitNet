@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "コマンドを入力するか検索...",
+  "noResultsFound": "結果が見つかりませんでした。",
+  "english": "英語 （{{locale}}）",
+  "danish": "デンマーク語 ({{locale}}）",
+  "german": "ドイツ語 ({{locale}}）",
+  "spanish": "スペイン語 ({{locale}}）",
+  "french": "フランス語 ({{locale}}）",
+  "italian": "イタリア語 ({{locale}}）",
+  "japanese": "日本語 （{{locale}}）",
+  "korean": "韓国語 ({{locale}}）",
+  "portuguese": "ポルトガル語 ({{locale}}）",
+  "thai": "タイ語 ({{locale}}）",
+  "index": "推論ダッシュボード",
+  "back": "戻る",
+  "llmFunctionality": "LLM の機能",
+  "about": "について"
+}

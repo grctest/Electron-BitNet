@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "Escribe un comando o busca...",
+  "noResultsFound": "No se encontraron resultados.",
+  "english": "Inglés ({{locale}})",
+  "danish": "danés ({{locale}})",
+  "german": "Alemán ({{locale}})",
+  "spanish": "Español ({{locale}})",
+  "french": "Francés ({{locale}})",
+  "italian": "italiano ({{locale}})",
+  "japanese": "japonés ({{locale}})",
+  "korean": "coreano ({{locale}})",
+  "portuguese": "portugués ({{locale}})",
+  "thai": "tailandés ({{locale}})",
+  "index": "Panel de inferencia",
+  "back": "Volver",
+  "llmFunctionality": "Funcionalidad del Máster en Derecho",
+  "about": "Acerca de"
+}

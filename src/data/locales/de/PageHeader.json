@@ -1,0 +1,18 @@
+{
+  "commandSearchPlaceholder": "Geben Sie einen Befehl ein oder suchen Sie...",
+  "noResultsFound": "Keine Ergebnisse gefunden.",
+  "english": "Englisch ({{locale}})",
+  "danish": "Dänisch ({{locale}})",
+  "german": "Deutsch ({{locale}})",
+  "spanish": "Spanisch ({{locale}})",
+  "french": "Französisch ({{locale}})",
+  "italian": "Italienisch ({{locale}})",
+  "japanese": "Japanisch ({{locale}})",
+  "korean": "Koreanisch ({{locale}})",
+  "portuguese": "Portugiesisch ({{locale}})",
+  "thai": "Thailändisch ({{locale}})",
+  "index": "Inferenz-Dashboard",
+  "back": "Geh zurück",
+  "llmFunctionality": "LLM-Funktionalität",
+  "about": "Um"
+}

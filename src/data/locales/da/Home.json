@@ -1,0 +1,22 @@
+{
+    "title": "Electron BitNet Inference Tool",
+    "description": "Microsoft udgav bitnet.cpp som deres officielle inferensramme for 1-bit LLM'er (f.eks. BitNet b1.58), som kører på CPU'er; ",
+    "commandOptions": "Kommandoindstillinger",
+    "numberOfTokens": "Antal tokens at forudsige",
+    "model": "Model",
+    "threads": "Tråde",
+    "contextSize": "Kontekststørrelse",
+    "temperature": "Temperatur",
+    "prompt": "Hurtig",
+    "numberOfTokensInfo": "Dette er mængden af ​​tokens (ord), der skal genereres ved at køre inferensrammen.",
+    "modelInfo": "Indtast stien til den kvantiserede '{{fileFormat}}' modelfil genereret ved hjælp af Microsofts BitNet '{{script}}' script.",
+    "threadsInfo": "Antallet af tråde, der skal bruges til at køre slutningen. ",
+    "contextSizeInfo": "Størrelsen af ​​promptkonteksten. ",
+    "temperatureInfo": "En hyperparameter, der styrer tilfældigheden af ​​den genererede tekst. ",
+    "promptInfo": "Prompten til at generere tekst fra. ",
+    "runInference": "Kør Inference",
+    "stopInference": "Stop inferens",
+    "response": "Svar",
+    "license": "{{license}} Licenseret kode",
+    "builtWith": "bygget med"
+  }
