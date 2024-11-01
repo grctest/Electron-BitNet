@@ -1,8 +1,15 @@
 # Electron-BitNet
 
-Running Microsoft's BitNet via [Astro](https://astro.build/), [React](https://react.dev/) & [Electron](https://www.electronjs.org/)!
+Running [Microsoft's BitNet](https://github.com/microsoft/BitNet) via [Astro](https://astro.build/), [React](https://react.dev/) & [Electron](https://www.electronjs.org/)!
 
-How to setup this application:
+## Functionality
+
+* Run Microsoft BitNet model inference
+* Benchmark BitNet models
+* Calculate BitNet model perplexity
+* Switch between multiple languages
+
+## How to setup this application
 
 - Use python to prepare 1-bit models
   - Follow [Microsoft's instructions](https://github.com/microsoft/BitNet?tab=readme-ov-file#installation), installing visual studio 2022 (including c++ desktop build tools & clang build tools) and preparing the 1-bit model for use.
