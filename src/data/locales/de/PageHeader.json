@@ -11,7 +11,10 @@
   "korean": "Koreanisch ({{locale}})",
   "portuguese": "Portugiesisch ({{locale}})",
   "thai": "Thailändisch ({{locale}})",
+  "taiwanese": "Taiwanesisch ({{locale}})",
   "index": "Inferenz-Dashboard",
+  "benchmark": "Benchmark-Modelle",
+  "perplexity": "Berechnen Sie die Ratlosigkeit",
   "back": "Geh zurück",
   "llmFunctionality": "LLM-Funktionalität",
   "about": "Um"

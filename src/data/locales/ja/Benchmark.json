@@ -1,0 +1,18 @@
+{
+  "title": "Electron BitNet ベンチマーク ツール",
+  "description": "以下で Microsoft BitNet 1 ビット LLM モデルのベンチマークを行います。テスト変数が大きいほど実行に時間がかかることに留意してください。",
+  "commandOptions": "コマンドオプション",
+  "numberOfTokens": "トークンの数",
+  "numberOfTokensInfo": "ベンチマーク中に生成するトークンの数を指定します。",
+  "model": "モデル",
+  "modelInfo": "量子化された ' へのパスを入力します。{{fileFormat}}' Microsoft の BitNet を使用して生成されたモデル ファイル '{{script}}' スクリプト。",
+  "threads": "スレッド",
+  "threadsInfo": "ベンチマークに使用するスレッドの数を指定します。",
+  "promptLength": "プロンプトの長さ",
+  "promptLengthInfo": "テキストを生成するプロンプトの長さを指定します。",
+  "runBenchmark": "ベンチマークの実行",
+  "stopBenchmark": "停止ベンチマーク",
+  "log": "ベンチマークログ",
+  "license": "以下に基づいてライセンスを取得 {{license}}",
+  "builtWith": "で構築"
+}

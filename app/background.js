@@ -229,12 +229,14 @@ __webpack_require__.r(__webpack_exports__);
 let mainWindow = null;
 let tray = null;
 let inferenceProcess = null;
+let benchmarkProcess = null;
+let perplexityProcess = null;
 
 function runInference(args) {
   let mainPath = path__WEBPACK_IMPORTED_MODULE_1___default().join(electron__WEBPACK_IMPORTED_MODULE_7__.app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
 
   if (!fs__WEBPACK_IMPORTED_MODULE_4___default().existsSync(mainPath)) {
-    mainPath = path__WEBPACK_IMPORTED_MODULE_1___default().join(electron__WEBPACK_IMPORTED_MODULE_7__.app.getAppPath(), 'bin', 'llama-cli');
+    return;
   }
 
   const command = [
@@ -262,7 +264,7 @@ function runInference(args) {
   });
 }
 
-function signalHandler() {
+function terminateInference() {
   if (inferenceProcess) {
     console.log('Terminating inference process...');
     try {
@@ -280,6 +282,113 @@ function signalHandler() {
 
   mainWindow.webContents.send('aiComplete');
   inferenceProcess = null;
+}
+
+function runBenchmark(args) {
+  let benchPath = path__WEBPACK_IMPORTED_MODULE_1___default().join(electron__WEBPACK_IMPORTED_MODULE_7__.app.getAppPath(), 'bin', 'Release', 'llama-bench.exe');
+
+  if (!fs__WEBPACK_IMPORTED_MODULE_4___default().existsSync(benchPath)) {
+    console.error('Benchmark binary not found, please build first.');
+    return;
+  }
+
+  const command = [
+    `"${benchPath}"`,
+    '-m', args.model,
+    '-n', args.n_token,
+    '-ngl', '0',
+    '-b', '1',
+    '-t', args.threads,
+    '-p', args.n_prompt,
+    '-r', '5'
+  ];
+
+  benchmarkProcess = (0,child_process__WEBPACK_IMPORTED_MODULE_0__.spawn)(command[0], command.slice(1), { shell: true });
+
+  benchmarkProcess.stdout.on('data', (data) => {
+    const log = data.toString();
+    mainWindow.webContents.send('benchmarkLog', log);
+  });
+
+  benchmarkProcess.on('close', (code) => {
+    mainWindow.webContents.send('benchmarkComplete');
+    benchmarkProcess = null;
+  });
+}
+
+function terminateBenchmark() {
+  if (benchmarkProcess) {
+    console.log('Terminating benchmark process...');
+    try {
+      benchmarkProcess.kill('SIGKILL'); // Use SIGKILL to forcefully terminate the process
+      benchmarkProcess.stdout.removeAllListeners('data');
+      benchmarkProcess.stderr.removeAllListeners('data');
+      benchmarkProcess = null;
+      console.log('Benchmark process terminated.');
+    } catch (error) {
+      console.error('Failed to terminate benchmark process:', error);
+    }
+  } else {
+    console.log('No benchmark process to terminate.');
+  }
+
+  mainWindow.webContents.send('benchmarkComplete');
+  benchmarkProcess = null;
+}
+
+function runPerplexity(args) {
+  let perplexityPath = path__WEBPACK_IMPORTED_MODULE_1___default().join(electron__WEBPACK_IMPORTED_MODULE_7__.app.getAppPath(), 'bin', 'Release', 'llama-perplexity.exe');
+
+  if (!fs__WEBPACK_IMPORTED_MODULE_4___default().existsSync(perplexityPath)) {
+    console.error('Perplexity binary not found, please build first.');
+    return;
+  }
+
+  const command = [
+    `"${perplexityPath}"`,
+    '--model', `"${args.model}"`,
+    '--prompt', `"${args.prompt}"`,
+    '--threads', args.threads,
+    '--ctx-size', args.ctx_size,
+    '--perplexity',
+    '--ppl-stride', args.ppl_stride
+  ];
+
+  perplexityProcess = (0,child_process__WEBPACK_IMPORTED_MODULE_0__.spawn)(command[0], command.slice(1), { shell: true });
+
+  perplexityProcess.stderr.on('data', (data) => {
+    const log = data.toString();
+    mainWindow.webContents.send('perplexityLog', log);
+  });
+
+  perplexityProcess.on('error', (error) => {
+    console.error('Perplexity process error:', error);
+  });
+
+  perplexityProcess.on('close', (code) => {
+    mainWindow.webContents.send('perplexityComplete');
+    perplexityProcess = null;
+  });
+}
+
+function terminatePerplexity() {
+  if (perplexityProcess) {
+    console.log('Terminating perplexity process...');
+    try {
+      perplexityProcess.kill('SIGKILL'); // Use SIGKILL to forcefully terminate the process
+      perplexityProcess.stdout.removeAllListeners('data');
+      perplexityProcess.stderr.removeAllListeners('data');
+      perplexityProcess = null;
+      console.log('Perplexity process terminated.');
+    } catch (error) {
+      console.error('Failed to terminate perplexity process:', error);
+    }
+  } else {
+    console.log('No perplexity process to terminate.');
+  }
+
+  mainWindow.webContents.send('perplexityComplete');
+  perplexityProcess = null;
 }
 
 const createWindow = async () => {
@@ -373,7 +482,7 @@ const createWindow = async () => {
   });
 
   electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.on("stopInference", (event) => {
-    signalHandler();
+    terminateInference();
   });
 
   electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.handle('openFileDialog', async () => {
@@ -382,6 +491,26 @@ const createWindow = async () => {
         filters: [{ name: 'GGUF Files', extensions: ['gguf'] }]
     });
     return result.filePaths;
+  });
+
+  electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.handle('getMaxThreads', async () => {
+    return os__WEBPACK_IMPORTED_MODULE_2___default().cpus().length;
+  });
+
+  electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.on("runBenchmark", (event, arg) => {
+    runBenchmark(arg);
+  });
+
+  electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.on("stopBenchmark", (event) => {
+    terminateBenchmark();
+  });
+
+  electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.on("runPerplexity", (event, arg) => {
+    runPerplexity(arg);
+  });
+  
+  electron__WEBPACK_IMPORTED_MODULE_7__.ipcMain.on("stopPerplexity", (event) => {
+    terminatePerplexity();
   });
 
   tray.on("click", () => {
@@ -417,11 +546,13 @@ if (currentOS === "win32" || currentOS === "linux") {
   });
 
   electron__WEBPACK_IMPORTED_MODULE_7__.app.on('before-quit', (event) => {
-    signalHandler();
+    terminateInference();
+    terminateBenchmark();
   });
   
   electron__WEBPACK_IMPORTED_MODULE_7__.app.on('will-quit', (event) => {
-    signalHandler();
+    terminateInference();
+    terminateBenchmark();
   });
 
   electron__WEBPACK_IMPORTED_MODULE_7__.app.on("window-all-closed", () => {

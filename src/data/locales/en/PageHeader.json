@@ -11,7 +11,10 @@
   "korean": "Korean ({{locale}})",
   "portuguese": "Portuguese ({{locale}})",
   "thai": "Thai ({{locale}})",
+  "taiwanese": "Taiwanese ({{locale}})",
   "index": "Inference Dashboard",
+  "benchmark": "Benchmark Models",
+  "perplexity": "Calculate Perplexity",
   "back": "Go back",
   "llmFunctionality": "LLM Functionality",
   "about": "About"

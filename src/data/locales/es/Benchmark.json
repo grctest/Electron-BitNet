@@ -1,0 +1,18 @@
+{
+  "title": "Herramienta de evaluación comparativa Electron BitNet",
+  "description": "Compare su modelo LLM de 1 bit de Microsoft BitNet a continuación, teniendo en cuenta que las variables de prueba más grandes tardan más en ejecutarse.",
+  "commandOptions": "Opciones de comando",
+  "numberOfTokens": "Número de fichas",
+  "numberOfTokensInfo": "Especifique la cantidad de tokens que se generarán durante la prueba comparativa.",
+  "model": "Modelo",
+  "modelInfo": "Ingrese la ruta al 'cuantizado'{{fileFormat}}'archivo de modelo generado utilizando BitNet de Microsoft'{{script}}' guion.",
+  "threads": "Trapos",
+  "threadsInfo": "Especifique el número de subprocesos que se utilizarán para la prueba comparativa.",
+  "promptLength": "Longitud del mensaje",
+  "promptLengthInfo": "Especifique la longitud del mensaje a partir del cual generar texto.",
+  "runBenchmark": "Ejecutar punto de referencia",
+  "stopBenchmark": "Detener punto de referencia",
+  "log": "Registro de referencia",
+  "license": "Licenciado bajo {{license}}",
+  "builtWith": "Construido con"
+}

@@ -1,0 +1,18 @@
+{
+  "title": "Electron BitNet 벤치마킹 도구",
+  "description": "아래의 Microsoft BitNet 1비트 LLM 모델을 벤치마킹하세요. 테스트 변수가 클수록 실행하는 데 시간이 더 오래 걸린다는 점을 염두에 두세요.",
+  "commandOptions": "명령 옵션",
+  "numberOfTokens": "토큰 수",
+  "numberOfTokensInfo": "벤치마크 중에 생성할 토큰 수를 지정합니다.",
+  "model": "모델",
+  "modelInfo": "양자화된 '' 경로를 입력하세요.{{fileFormat}}' Microsoft의 BitNet을 사용하여 생성된 모델 파일 '{{script}}' 스크립트.",
+  "threads": "스레드",
+  "threadsInfo": "벤치마크에 사용할 스레드 수를 지정합니다.",
+  "promptLength": "프롬프트 길이",
+  "promptLengthInfo": "텍스트를 생성할 프롬프트의 길이를 지정합니다.",
+  "runBenchmark": "벤치마크 실행",
+  "stopBenchmark": "벤치마크 중지",
+  "log": "벤치마크 로그",
+  "license": "아래 라이선스 {{license}}",
+  "builtWith": "다음으로 제작됨"
+}

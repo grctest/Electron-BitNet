@@ -11,7 +11,10 @@
   "korean": "Coreano ({{locale}})",
   "portuguese": "Português ({{locale}})",
   "thai": "Tailandês ({{locale}})",
+  "taiwanese": "Taiwanês ({{locale}})",
   "index": "Painel de inferência",
+  "benchmark": "Modelos de referência",
+  "perplexity": "Calcular Perplexidade",
   "back": "Volte",
   "llmFunctionality": "Funcionalidade LLM",
   "about": "Sobre"

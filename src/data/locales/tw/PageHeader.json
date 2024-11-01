@@ -1,0 +1,21 @@
+{
+  "commandSearchPlaceholder": "鍵入命令或搜索...",
+  "noResultsFound": "未找到結果。",
+  "english": "英語 （{{locale}}）",
+  "danish": "丹麥語（{{locale}}）",
+  "german": "德語（{{locale}}）",
+  "spanish": "西班牙語 （{{locale}}）",
+  "french": "法語 （{{locale}}）",
+  "italian": "意大利語（{{locale}}）",
+  "japanese": "日語 （{{locale}}）",
+  "korean": "韓語 （{{locale}}）",
+  "portuguese": "葡萄牙語（{{locale}}）",
+  "thai": "泰語（{{locale}}）",
+  "taiwanese": "臺灣語（{{locale}}）",
+  "index": "推理控制面板",
+  "benchmark": "基準測試模型",
+  "perplexity": "計算困惑度",
+  "back": "返回",
+  "llmFunctionality": "LLM 功能",
+  "about": "關於"
+}

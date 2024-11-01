@@ -1,0 +1,18 @@
+{
+    "title": "Electron BitNet Benchmarking Tool",
+    "description": "Benchmark your Microsoft BitNet 1-bit LLM model below, bearing in mind that larger test variables take longer to run.",
+    "commandOptions": "Command Options",
+    "numberOfTokens": "Number of Tokens",
+    "numberOfTokensInfo": "Specify the number of tokens to generate during the benchmark.",
+    "model": "Model",
+    "modelInfo": "Input the path to the quantized '{{fileFormat}}' model file generated using Microsoft's BitNet '{{script}}' script.",
+    "threads": "Threads",
+    "threadsInfo": "Specify the number of threads to use for the benchmark.",
+    "promptLength": "Prompt Length",
+    "promptLengthInfo": "Specify the length of the prompt to generate text from.",
+    "runBenchmark": "Run Benchmark",
+    "stopBenchmark": "Stop Benchmark",
+    "log": "Benchmark Log",
+    "license": "Licensed under {{license}}",
+    "builtWith": "Built with"
+}

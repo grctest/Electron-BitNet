@@ -1,14 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Home from '../components/Home.jsx';
+import BenchmarkUI from '../components/BenchmarkUI.jsx';
 import PageHeader from '@/components/PageHeader';
 import '@/styles/globals.css'
 ---
 
-<Layout title="Electron BitNet Model Inference">
+<Layout title="Electron BitNet Model Benchmarking">
 	<main>
 		<PageHeader client:only="react" backURL="../index.html" />
-		<Home client:only="react" />
+		<BenchmarkUI client:only="react" />
 	</main>
 </Layout>
 

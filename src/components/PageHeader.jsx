@@ -125,6 +125,16 @@ export default function PageHeader(properties) {
                         text={t("PageHeader:index")}
                         icon="🤖"
                       />
+                      <MenuRow
+                        url="/benchmark/index.html"
+                        text={t("PageHeader:benchmark")}
+                        icon="📊"
+                      />
+                      <MenuRow
+                        url="/perplexity/index.html"
+                        text={t("PageHeader:perplexity")}
+                        icon="🔬"
+                      />
                     </CommandGroup>
                   </CommandList>
                 </Command>
@@ -161,7 +171,7 @@ export default function PageHeader(properties) {
                   <CommandInput placeholder={t("PageHeader:commandSearchPlaceholder")} />
                   <CommandList>
                     <CommandEmpty>{t("PageHeader:noResultsFound")}</CommandEmpty>
-                    <CommandGroup heading={t("PageHeader:exchangingFundsHeading")}>
+                    <CommandGroup>
                       <LanguageRow language="en" i18n={i18n} text={t("PageHeader:english", {locale: "en"})} />
                       <LanguageRow language="da" i18n={i18n} text={t("PageHeader:danish", {locale: "da"})} />
                       <LanguageRow language="de" i18n={i18n} text={t("PageHeader:german", {locale: "de"})} />
@@ -172,6 +182,7 @@ export default function PageHeader(properties) {
                       <LanguageRow language="ko" i18n={i18n} text={t("PageHeader:korean", {locale: "ko"})} />
                       <LanguageRow language="pt" i18n={i18n} text={t("PageHeader:portuguese", {locale: "pt"})} />
                       <LanguageRow language="th" i18n={i18n} text={t("PageHeader:thai", {locale: "th"})} />
+                      <LanguageRow language="tw" i18n={i18n} text={t("PageHeader:taiwanese", {locale: "tw"})} />
                     </CommandGroup>
                   </CommandList>
                 </Command>

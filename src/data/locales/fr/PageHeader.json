@@ -9,9 +9,12 @@
   "italian": "italien ({{locale}})",
   "japanese": "Japonais ({{locale}})",
   "korean": "coréen ({{locale}})",
-  "portuguese": "portugais ({{locale}})",
+  "portuguese": "Portugais ({{locale}})",
   "thai": "Thaï ({{locale}})",
+  "taiwanese": "Taïwanais ({{locale}})",
   "index": "Tableau de bord d'inférence",
+  "benchmark": "Modèles de référence",
+  "perplexity": "Calculer la perplexité",
   "back": "Retourner",
   "llmFunctionality": "Fonctionnalité LLM",
   "about": "À propos"

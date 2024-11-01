@@ -1,0 +1,18 @@
+{
+  "title": "Electron BitNet 基準測試工具",
+  "description": "在下面對您的 Microsoft BitNet 1 位 LLM 模型進行基準測試,請記住,較大的測試變數需要更長的時間來運行。",
+  "commandOptions": "命令選項",
+  "numberOfTokens": "代幣數量",
+  "numberOfTokensInfo": "指定基準測試期間要生成的代幣數量。",
+  "model": "模型",
+  "modelInfo": "輸入使用 Microsoft 的 BitNet '{{script}}' 腳本生成的量化 '{{fileFormat}}' 模型文件的路徑。",
+  "threads": "線程",
+  "threadsInfo": "指定要用於基準測試的線程數。",
+  "promptLength": "提示長度",
+  "promptLengthInfo": "指定要從中生成文本的提示的長度。",
+  "runBenchmark": "運行基準測試",
+  "stopBenchmark": "停止基準測試",
+  "log": "基準測試日誌",
+  "license": "根據 {{license}} 獲得許可",
+  "builtWith": "內置"
+}

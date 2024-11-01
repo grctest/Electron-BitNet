@@ -1,0 +1,18 @@
+{
+  "title": "Outil d'analyse comparative Electron BitNet",
+  "description": "Comparez votre modèle LLM Microsoft BitNet 1 bit ci-dessous, en gardant à l'esprit que les variables de test plus importantes prennent plus de temps à s'exécuter.",
+  "commandOptions": "Options de commande",
+  "numberOfTokens": "Nombre de jetons",
+  "numberOfTokensInfo": "Spécifiez le nombre de jetons à générer lors du benchmark.",
+  "model": "Modèle",
+  "modelInfo": "Entrez le chemin vers le ' quantifié{{fileFormat}}'fichier modèle généré à l'aide de BitNet de Microsoft'{{script}}' scénario.",
+  "threads": "Sujets",
+  "threadsInfo": "Spécifiez le nombre de threads à utiliser pour le test de performance.",
+  "promptLength": "Longueur de l'invite",
+  "promptLengthInfo": "Spécifiez la longueur de l'invite à partir de laquelle générer le texte.",
+  "runBenchmark": "Exécuter une analyse comparative",
+  "stopBenchmark": "Arrêter le benchmark",
+  "log": "Journal de référence",
+  "license": "Autorisé sous {{license}}",
+  "builtWith": "Construit avec"
+}

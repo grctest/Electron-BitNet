@@ -2,10 +2,12 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { persistentAtom } from "@nanostores/persistent";
 
-const languages = ["en", "da", "de", "es", "fr", "it", "ja", "ko", "pt", "th"];
+const languages = ["en", "da", "de", "es", "fr", "it", "ja", "ko", "pt", "th", "tw"];
 const pages = [
   "Home",
-  "PageHeader"
+  "PageHeader",
+  "Benchmark",
+  "Perplexity",
 ];
 
 const locale = persistentAtom("locale", "en");

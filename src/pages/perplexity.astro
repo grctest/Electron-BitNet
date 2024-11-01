@@ -1,14 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Home from '../components/Home.jsx';
+import PerplexityUI from '../components/PerplexityUI.jsx';
 import PageHeader from '@/components/PageHeader';
 import '@/styles/globals.css'
 ---
 
-<Layout title="Electron BitNet Model Inference">
+<Layout title="Electron BitNet Perplexity Calculator">
 	<main>
 		<PageHeader client:only="react" backURL="../index.html" />
-		<Home client:only="react" />
+		<PerplexityUI client:only="react" />
 	</main>
 </Layout>
 

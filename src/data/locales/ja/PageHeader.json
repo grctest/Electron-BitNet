@@ -11,7 +11,10 @@
   "korean": "韓国語 ({{locale}}）",
   "portuguese": "ポルトガル語 ({{locale}}）",
   "thai": "タイ語 ({{locale}}）",
+  "taiwanese": "台湾語（{{locale}}）",
   "index": "推論ダッシュボード",
+  "benchmark": "ベンチマークモデル",
+  "perplexity": "複雑さを計算する",
   "back": "戻る",
   "llmFunctionality": "LLM の機能",
   "about": "について"

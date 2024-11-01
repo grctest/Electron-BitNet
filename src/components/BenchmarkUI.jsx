@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { UploadIcon, ReloadIcon } from "@radix-ui/react-icons";
 import { useTranslation } from "react-i18next";
 import { i18n as i18nInstance, locale } from "@/lib/i18n.js";
@@ -28,20 +28,17 @@ import {
 import ExternalLink from "@/components/ExternalLink.jsx";
 import HoverInfo from "@/components/HoverInfo.jsx";
 
-export default function Home(properties) {
+export default function BenchmarkUI(properties) {
     const { t, i18n } = useTranslation(locale.get(), { i18n: i18nInstance });
 
-    const [tokenQuantity, setTokenQuantity] = useState(20);
+    const [tokenQuantity, setTokenQuantity] = useState(1);
     const [model, setModel] = useState(""); // proven compatible: ggml-model-i2_s.gguf
     const [threads, setThreads] = useState(2);
-    const [ctxSize, setCtxSize] = useState(2048);
-    const [temperature, setTemperature] = useState(0.8);
+    const [promptLength, setPromptLength] = useState(1);
 
-    const [prompt, setPrompt] = useState("");
-
-    const [runningInference, setRunningInference] = useState(false);
-    const [aiResponse, setAiResponse] = useState("");
-
+    const [runningBenchmark, setRunningBenchmark] = useState(false);
+    const [benchmarkLog, setBenchmarkLog] = useState("");
+    
     const [maxThreads, setMaxThreads] = useState(2);
     useEffect(() => {
         if (!window.electron) {
@@ -66,39 +63,71 @@ export default function Home(properties) {
             return;
         }
 
-        window.electron.onAiResponse((response) => {
-            setAiResponse((prevAiResponse) => prevAiResponse + response);
+        window.electron.onBenchmarkLog((log) => {
+            setBenchmarkLog((prevBenchmarkLog) => prevBenchmarkLog + log);
         });
 
-        window.electron.onAiError(() => {
-            setAiResponse((prevAiResponse) => prevAiResponse + "!!! An error occurred while running inference.");
-            setRunningInference(false);
-        });
-
-        window.electron.onAiComplete(() => {
-            setRunningInference(false);
+        window.electron.onBenchmarkComplete(() => {
+            setRunningBenchmark(false);
         });
     }, []);
+
+    const [parsedBenchmarkData, setParsedBenchmarkData] = useState([]);
+    const [timer, setTimer] = useState(null);
+
+    const parseBenchmarkData = () => {
+        const lines = benchmarkLog.trim().split('\n');
+        const headers = lines[0]?.split('|').map(header => header.trim()).filter(header => header);
+        const dataLines = lines.slice(2); // Skip the header and dashes rows
+    
+        return dataLines.map(line => {
+            const values = line.split('|').map(value => value.trim()).filter(value => value);
+            const obj = {};
+            headers.forEach((header, index) => {
+                obj[header] = values[index];
+            });
+            return obj;
+        }).filter(obj => {
+            // Filter out empty objects and irrelevant entries
+            return headers.every(header => obj[header]) && !obj['model']?.includes('build:');
+        });
+    };
+
+    useEffect(() => {
+        if (timer) {
+            clearTimeout(timer);
+        }
+
+        const newTimer = setTimeout(() => {
+            setParsedBenchmarkData(parseBenchmarkData());
+        }, 750);
+
+        setTimer(newTimer);
+
+        return () => {
+            clearTimeout(newTimer);
+        };
+    }, [benchmarkLog]);
 
     return (
         <div className="container mx-auto mt-3 mb-5">
             <Card>
                 <CardHeader>
-                    <CardTitle>{t("Home:title")}</CardTitle>
+                    <CardTitle>{t("Benchmark:title")}</CardTitle>
                     <CardDescription>
-                        {t("Home:description")}
+                        {t("Benchmark:description")}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-4 gap-2">
                         <div className="col-span-2 grid grid-cols-1 gap-2">
-                            <b>{t("Home:commandOptions")}</b>
+                            <b>{t("Benchmark:commandOptions")}</b>
                             <HoverInfo
-                                content={t("Home:numberOfTokensInfo")}
-                                header={t("Home:numberOfTokens")}
+                                content={t("Benchmark:numberOfTokensInfo")}
+                                header={t("Benchmark:numberOfTokens")}
                             />
                             <Input
-                                placeholder={0}
+                                placeholder={128}
                                 value={tokenQuantity}
                                 type="number"
                                 onInput={(e) => {
@@ -110,8 +139,8 @@ export default function Home(properties) {
                                 }}
                             />
                             <HoverInfo
-                                content={t("Home:modelInfo", {fileFormat: "GGUF", script: "setup_env.py"})}
-                                header={t("Home:model")}
+                                content={t("Benchmark:modelInfo", {fileFormat: "GGUF", script: "setup_env.py"})}
+                                header={t("Benchmark:model")}
                             />
                             <div className="grid grid-cols-4 gap-2">
                                 <div className="col-span-3">
@@ -122,8 +151,8 @@ export default function Home(properties) {
                                 </Button>
                             </div>
                             <HoverInfo
-                                content={t("Home:threadsInfo")}
-                                header={t("Home:threads")}
+                                content={t("Benchmark:threadsInfo")}
+                                header={t("Benchmark:threads")}
                             />
                             <Select value={threads} onValueChange={(data) => {
                                 setThreads(data);
@@ -140,121 +169,85 @@ export default function Home(properties) {
                                 </SelectContent>
                             </Select>
                             <HoverInfo
-                                content={t("Home:contextSizeInfo")}
-                                header={t("Home:contextSize")}
+                                content={t("Benchmark:promptLengthInfo")}
+                                header={t("Benchmark:promptLength")}
                             />
                             <Input
-                                placeholder={2048}
+                                placeholder={512}
                                 step={1}
-                                value={ctxSize}
+                                value={promptLength}
                                 type="number"
                                 onInput={(e) => {
                                     const value = e.currentTarget.value;
                                     const regex = /^\d*$/; // Only allows positive whole numbers
                                     if (regex.test(value)) {
-                                        setCtxSize(value);
+                                        setPromptLength(value);
                                     }
-                                }}
-                            />
-                            <HoverInfo
-                                content={t("Home:temperatureInfo")}
-                                header={t("Home:temperature")}
-                            />
-                            <Input
-                                placeholder={0.8}
-                                step={0.1}
-                                value={temperature}
-                                type="number"
-                                onInput={(e) => {
-                                    const value = e.currentTarget.value;
-                                    const regex = /^\d*\.?\d*$/; // Only allows positive floats or whole numbers
-                                    if (regex.test(value)) {
-                                        setTemperature(value);
-                                    }
-                                }}
-                            />
-                            <HoverInfo
-                                content={t("Home:promptInfo")}
-                                header={t("Home:prompt")}
-                            />
-                            <Textarea
-                                value={prompt}
-                                onInput={(e) => {
-                                    setPrompt(e.currentTarget.value);
                                 }}
                             />
                             <div className="grid grid-cols-2 gap-2">
                                 {
-                                    model &&
-                                    tokenQuantity && tokenQuantity > 0 &&
-                                    ctxSize && ctxSize > 0 &&
-                                    temperature && temperature > 0 &&
-                                    runningInference
-                                        ? <Button disabled>
-                                            <span className="flex items-center gap-2">
-                                                <ReloadIcon style={{ animation: 'spin 2s linear infinite' }} />
-                                                <span>
-                                                    {t("Home:runInference")}
-                                                </span>
+                                    model && runningBenchmark
+                                    ? <Button disabled>
+                                        <span className="flex items-center gap-2">
+                                            <ReloadIcon style={{ animation: 'spin 2s linear infinite' }} />
+                                            <span>
+                                                {t("Benchmark:runBenchmark")}
                                             </span>
-                                        </Button>
-                                        : null
+                                        </span>
+                                    </Button>
+                                    : null
                                 }
-
                                 {
                                     model &&
                                     tokenQuantity && tokenQuantity > 0 &&
-                                    ctxSize && ctxSize > 0 &&
-                                    temperature && temperature > 0 &&
-                                    !runningInference
+                                    promptLength && promptLength > 0 &&
+                                    !runningBenchmark
                                         ? <Button
-                                            onClick={() => {
-                                                setAiResponse("");
-                                                setRunningInference(true);
-                                                window.electron.runInference({
-                                                    model,
-                                                    n_predict: tokenQuantity,
-                                                    threads,
-                                                    prompt,
-                                                    ctx_size: ctxSize,
-                                                    temperature,
-                                                });
-                                            }}
-                                        >
-                                            {t("Home:runInference")}
-                                        </Button>
+                                                onClick={() => {
+                                                    setBenchmarkLog("");
+                                                    setRunningBenchmark(true);
+                                                    window.electron.runBenchmark({
+                                                        model,
+                                                        n_token: tokenQuantity,
+                                                        threads,
+                                                        n_prompt: promptLength,
+                                                    });
+                                                }}
+                                            >
+                                                {t("Benchmark:runBenchmark")}
+                                            </Button>
                                         : null
                                 }
-
                                 {
-                                    !model ||
-                                    !tokenQuantity || tokenQuantity <= 0 ||
-                                    !ctxSize || ctxSize <= 0 ||
-                                    !temperature || temperature <= 0
-                                        ? <Button disabled>
-                                            {t("Home:runInference")}
-                                        </Button>
-                                        : null
+                                    !model || !tokenQuantity || !promptLength
+                                    ? <Button disabled>
+                                        {t("Benchmark:runBenchmark")}
+                                    </Button>
+                                    : null
                                 }
-                                
                                 {
-                                    runningInference
+                                    runningBenchmark
                                         ? <Button
                                             onClick={() => {
-                                                window.electron.stopInference({});
+                                                window.electron.stopBenchmark({});
                                             }}
                                         >
-                                            {t("Home:stopInference")}
+                                            {t("Benchmark:stopBenchmark")}
                                         </Button>
-                                        : <Button disabled>{t("Home:stopInference")}</Button>
+                                        : <Button disabled>{t("Benchmark:stopBenchmark")}</Button>
                                 }
-                                
                             </div>
 
                         </div>
                         <div className="col-span-2">
-                            <b>{t("Home:response")}</b>
-                            <Textarea readOnly={true} rows={20} className="w-full" value={aiResponse} />
+                            <b>{t("Benchmark:log")}</b>
+                            <Textarea
+                                readOnly={true}
+                                rows={20}
+                                className="w-full"
+                                value={parsedBenchmarkData ? JSON.stringify(parsedBenchmarkData, null, 2) : null}
+                            />
                         </div>
                     </div>
                 </CardContent>
@@ -264,11 +257,11 @@ export default function Home(properties) {
                 <h4 className="text-center">
                     <ExternalLink
                         type="text"
-                        text={t("Home:license", { license: "MIT" })}
+                        text={t("Benchmark:license", { license: "MIT" })}
                         gradient
                         hyperlink={"https://github.com/grctest/Electron-BitNet"}
                     />
-                    {" " + t("Home:builtWith") + " "}
+                    {" " + t("Benchmark:builtWith") + " "}
                     <ExternalLink
                         type="text"
                         text="Astro"

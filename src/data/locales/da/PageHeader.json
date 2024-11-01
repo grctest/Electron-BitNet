@@ -11,7 +11,10 @@
   "korean": "koreansk ({{locale}})",
   "portuguese": "portugisisk ({{locale}})",
   "thai": "Thai ({{locale}})",
+  "taiwanese": "taiwansk ({{locale}})",
   "index": "Inferens Dashboard",
+  "benchmark": "Benchmark modeller",
+  "perplexity": "Beregn forvirring",
   "back": "Gå tilbage",
   "llmFunctionality": "LLM funktionalitet",
   "about": "Om"

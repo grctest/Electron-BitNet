@@ -11,7 +11,10 @@
   "korean": "한국인 ({{locale}})",
   "portuguese": "포르투갈어({{locale}})",
   "thai": "태국어({{locale}})",
+  "taiwanese": "대만어({{locale}})",
   "index": "추론 대시보드",
+  "benchmark": "벤치마크 모델",
+  "perplexity": "당혹감을 계산하다",
   "back": "돌아가기",
   "llmFunctionality": "LLM 기능",
   "about": "에 대한"

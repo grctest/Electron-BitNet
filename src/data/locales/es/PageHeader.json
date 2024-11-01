@@ -11,7 +11,10 @@
   "korean": "coreano ({{locale}})",
   "portuguese": "portugués ({{locale}})",
   "thai": "tailandés ({{locale}})",
+  "taiwanese": "taiwanés ({{locale}})",
   "index": "Panel de inferencia",
+  "benchmark": "Modelos de referencia",
+  "perplexity": "Calcular la perplejidad",
   "back": "Volver",
   "llmFunctionality": "Funcionalidad del Máster en Derecho",
   "about": "Acerca de"

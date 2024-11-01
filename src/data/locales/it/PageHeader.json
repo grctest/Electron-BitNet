@@ -11,7 +11,10 @@
   "korean": "coreano ({{locale}})",
   "portuguese": "portoghese ({{locale}})",
   "thai": "tailandese ({{locale}})",
+  "taiwanese": "Taiwanese ({{locale}})",
   "index": "Dashboard di inferenza",
+  "benchmark": "Modelli di riferimento",
+  "perplexity": "Calcola la perplessità",
   "back": "Torna indietro",
   "llmFunctionality": "Funzionalità LLM",
   "about": "Di"

@@ -93,6 +93,9 @@ __webpack_require__.r(__webpack_exports__);
 
 electron__WEBPACK_IMPORTED_MODULE_0__.contextBridge.exposeInMainWorld("electron", {
   openURL: async (target) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("openURL", target),
+  openFileDialog: async () => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.invoke("openFileDialog"),
+  getMaxThreads: async () => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.invoke("getMaxThreads"),
+  //
   onAiResponse: (func) => {
     electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.on("aiResponse", (event, data) => {
       func(data);
@@ -110,7 +113,32 @@ electron__WEBPACK_IMPORTED_MODULE_0__.contextBridge.exposeInMainWorld("electron"
   },
   runInference: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("runInference", args),
   stopInference: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("stopInference", args),
-  openFileDialog: async () => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.invoke("openFileDialog"),
+  //
+  onBenchmarkLog: (func) => {
+    electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.on("benchmarkLog", (event, data) => {
+      func(data);
+    });
+  },
+  onBenchmarkComplete: (func) => {
+    electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.on("benchmarkComplete", (event) => {
+      func();
+    });
+  },
+  runBenchmark: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("runBenchmark", args),
+  stopBenchmark: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("stopBenchmark", args),
+  //
+  onPerplexityLog: (func) => {
+    electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.on("perplexityLog", (event, data) => {
+      func(data);
+    });
+  },
+  onPerplexityComplete: (func) => {
+    electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.on("perplexityComplete", (event) => {
+      func();
+    });
+  },
+  runPerplexity: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("runPerplexity", args),
+  stopPerplexity: async (args) => electron__WEBPACK_IMPORTED_MODULE_0__.ipcRenderer.send("stopPerplexity", args),
 });
 
 })();

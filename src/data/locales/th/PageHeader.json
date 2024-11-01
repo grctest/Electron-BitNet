@@ -11,7 +11,10 @@
   "korean": "เกาหลี ({{locale}}-",
   "portuguese": "โปรตุเกส ({{locale}}-",
   "thai": "แบบไทย ({{locale}}-",
+  "taiwanese": "ชาวไต้หวัน ({{locale}}-",
   "index": "แดชบอร์ดการอนุมาน",
+  "benchmark": "โมเดลมาตรฐาน",
+  "perplexity": "คำนวณความฉงนสนเท่ห์",
   "back": "กลับไป",
   "llmFunctionality": "ฟังก์ชั่น LLM",
   "about": "เกี่ยวกับ"
