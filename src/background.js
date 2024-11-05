@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { execFile } from 'child_process';
 import path from 'path';
 import os from 'os';
 import process from 'process';
@@ -23,26 +23,31 @@ function runInference(args) {
     return;
   }
 
-  const command = [
-    `"${mainPath}"`,
+  const commandArgs = [
     '-m', args.model,
     '-n', args.n_predict,
     '-t', args.threads,
-    '-p', `"${args.prompt}"`,
+    '-p', args.prompt,
     '-ngl', '0',
     '-c', args.ctx_size,
     '--temp', args.temperature,
     '-b', '1'
   ];
 
-  inferenceProcess = spawn(command[0], command.slice(1), { shell: true });
+  inferenceProcess = execFile(mainPath, commandArgs, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`execFile error: ${error}`);
+      return;
+    }
 
-  inferenceProcess.stdout.on('data', (data) => {
-    const chars = data.toString();
-    mainWindow.webContents.send('aiResponse', chars);
-  });
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+    }
 
-  inferenceProcess.on('close', (code) => {
+    if (stdout) {
+      mainWindow.webContents.send('aiResponse', stdout);
+    }
+
     mainWindow.webContents.send('aiComplete');
     inferenceProcess = null;
   });
@@ -76,8 +81,7 @@ function runBenchmark(args) {
     return;
   }
 
-  const command = [
-    `"${benchPath}"`,
+  const commandArgs = [
     '-m', args.model,
     '-n', args.n_token,
     '-ngl', '0',
@@ -87,14 +91,20 @@ function runBenchmark(args) {
     '-r', '5'
   ];
 
-  benchmarkProcess = spawn(command[0], command.slice(1), { shell: true });
+  benchmarkProcess = execFile(benchPath, commandArgs, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`execFile error: ${error}`);
+      return;
+    }
 
-  benchmarkProcess.stdout.on('data', (data) => {
-    const log = data.toString();
-    mainWindow.webContents.send('benchmarkLog', log);
-  });
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+    }
 
-  benchmarkProcess.on('close', (code) => {
+    if (stdout) {
+      mainWindow.webContents.send('benchmarkLog', stdout);
+    }
+
     mainWindow.webContents.send('benchmarkComplete');
     benchmarkProcess = null;
   });
@@ -128,28 +138,30 @@ function runPerplexity(args) {
     return;
   }
 
-  const command = [
-    `"${perplexityPath}"`,
-    '--model', `"${args.model}"`,
-    '--prompt', `"${args.prompt}"`,
+  const commandArgs = [
+    '--model', args.model,
+    '--prompt', args.prompt,
     '--threads', args.threads,
     '--ctx-size', args.ctx_size,
     '--perplexity',
     '--ppl-stride', args.ppl_stride
   ];
 
-  perplexityProcess = spawn(command[0], command.slice(1), { shell: true });
+  perplexityProcess = execFile(perplexityPath, commandArgs, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`execFile error: ${error}`);
+      return;
+    }
 
-  perplexityProcess.stderr.on('data', (data) => {
-    const log = data.toString();
-    mainWindow.webContents.send('perplexityLog', log);
-  });
+    if (stderr) {
+      console.error(`stderr: ${stderr}`);
+      mainWindow.webContents.send('perplexityLog', stderr);
+    }
 
-  perplexityProcess.on('error', (error) => {
-    console.error('Perplexity process error:', error);
-  });
+    if (stdout) {
+      mainWindow.webContents.send('perplexityLog', stdout);
+    }
 
-  perplexityProcess.on('close', (code) => {
     mainWindow.webContents.send('perplexityComplete');
     perplexityProcess = null;
   });

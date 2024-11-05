@@ -197,9 +197,10 @@ export default function PerplexityUI(properties) {
                                 header={t("Perplexity:prompt")}
                             />
                             <Textarea
-                                placeholder="Enter your prompt here"
                                 value={prompt}
-                                onInput={(e) => setPrompt(e.currentTarget.value)}
+                                onInput={(e) => {
+                                    setPrompt(e.currentTarget.value);
+                                }}
                             />
                             {
                                 model && !sufficientTokens
@@ -299,7 +300,7 @@ export default function PerplexityUI(properties) {
                                                 setRunningPerplexity(true);
                                                 window.electron.runPerplexity({
                                                     model,
-                                                    prompt,
+                                                    prompt: prompt,
                                                     threads,
                                                     ctx_size: ctxSize,
                                                     ppl_stride: pplStride,

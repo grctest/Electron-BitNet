@@ -215,7 +215,7 @@ export default function Home(properties) {
                                                     model,
                                                     n_predict: tokenQuantity,
                                                     threads,
-                                                    prompt,
+                                                    prompt: prompt,
                                                     ctx_size: ctxSize,
                                                     temperature,
                                                 });
