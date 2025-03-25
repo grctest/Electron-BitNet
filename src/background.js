@@ -4,9 +4,10 @@ import os from 'os';
 import process from 'process';
 import fs from 'fs';
 import url from "url";
-import express from "express";
+import { readFile } from 'fs/promises';
+import mime from 'mime-types';
 
-import { app, BrowserWindow, Menu, Tray, ipcMain, shell, dialog } from "electron";
+import { app, BrowserWindow, Menu, Tray, ipcMain, shell, protocol, dialog } from "electron";
 
 import { initApplicationMenu } from "./lib/applicationMenu.js";
 
@@ -15,6 +16,17 @@ let tray = null;
 let inferenceProcess = null;
 let benchmarkProcess = null;
 let perplexityProcess = null;
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'file',
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true
+    }
+  }
+]);
 
 function runInference(args) {
   let mainPath = path.join(app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
@@ -203,23 +215,9 @@ const createWindow = async () => {
     icon: __dirname + "/img/taskbar.png",
   });
 
-  const expressApp = express();
-
-  let astroDistPath;
-  if (process.env.NODE_ENV === "development") {
-    astroDistPath = "astroDist";
-  } else {
-    astroDistPath = path.join(process.resourcesPath, "astroDist");
-  }
-
-  expressApp.use(express.static(astroDistPath));
-  expressApp.listen(8080, () => {
-    console.log("Express server listening on port 8080");
-  });
-
   initApplicationMenu(mainWindow);
 
-  mainWindow.loadURL("http://localhost:8080/index.html");
+  mainWindow.loadURL('file://index.html');
 
   mainWindow.webContents.setWindowOpenHandler(() => {
     return { action: "deny" };
@@ -335,13 +333,75 @@ if (currentOS === "win32" || currentOS === "linux") {
     app.quit();
   }
 
-  app.whenReady().then(() => {
-    createWindow();
-  });
+  app.whenReady()
+    .then(() => {
+      protocol.handle('file', async (req) => {
+        const { pathname } = new URL(req.url);
+        if (!pathname) {
+          return;
+        }
+        
+        let fullPath = process.env.NODE_ENV === "development"
+          ? path.join('astroDist', pathname)
+          : path.join(process.resourcesPath, 'astroDist', pathname);
+      
+        if (pathname === '/') {
+          fullPath = path.join(fullPath, 'index.html');
+        }
+
+        if (fullPath.includes("..") || fullPath.includes("~")) {
+          return; // Prevent directory traversal attacks
+        }
+
+        let _res;
+        try {
+          _res = await readFile(fullPath);
+        } catch (error) {
+          console.log({ error });
+        }
+
+        const mimeType = mime.lookup(fullPath) || 'application/octet-stream';
+
+        return new Response(_res, {
+          headers: { 'content-type': mimeType }
+        });
+      });
+    })
+    .then(createWindow);
 } else {
   app.whenReady().then(() => {
-    createWindow();
-  });
+    protocol.handle('file', async (req) => {
+      const { pathname } = new URL(req.url);
+      if (!pathname) {
+        return;
+      }
+      
+      let fullPath = process.env.NODE_ENV === "development"
+        ? path.join('astroDist', pathname)
+        : path.join(process.resourcesPath, 'astroDist', pathname);
+    
+      if (pathname === '/') {
+        fullPath = path.join(fullPath, 'index.html');
+      }
+
+      if (fullPath.includes("..") || fullPath.includes("~")) {
+        return; // Prevent directory traversal attacks
+      }
+
+      let _res;
+      try {
+        _res = await readFile(fullPath);
+      } catch (error) {
+        console.log({ error });
+      }
+
+      const mimeType = mime.lookup(fullPath) || 'application/octet-stream';
+
+      return new Response(_res, {
+        headers: { 'content-type': mimeType }
+      });
+    });
+  }).then(createWindow);
 
   app.on('before-quit', (event) => {
     terminateInference();
