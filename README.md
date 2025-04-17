@@ -14,7 +14,8 @@ Running [Microsoft's BitNet](https://github.com/microsoft/BitNet) via [Astro](ht
 ## How to setup this application
 
 - Use python to prepare 1-bit models
-  - Follow [Microsoft's instructions](https://github.com/microsoft/BitNet?tab=readme-ov-file#installation), installing visual studio 2022 (including c++ desktop build tools & clang build tools) and preparing the 1-bit model for use.
+  - Follow [Microsoft's instructions](https://github.com/microsoft/BitNet?tab=readme-ov-file#installation), installing visual studio 2022 (including c++ desktop build tools & clang build tools) and preparing Microsoft's [Official BitNet model](https://huggingface.co/microsoft/bitnet-b1.58-2B-4T) for use.
+  - OR: Download Microsoft's official BitNet model directly: https://huggingface.co/microsoft/bitnet-b1.58-2B-4T-gguf
 - Supports generated gguf models.
 - Run the commands below to build and run the app
 
