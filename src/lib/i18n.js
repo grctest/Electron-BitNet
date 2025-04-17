@@ -4,7 +4,7 @@ import { persistentAtom } from "@nanostores/persistent";
 
 const languages = ["en", "da", "de", "es", "fr", "it", "ja", "ko", "pt", "th", "tw"];
 const pages = [
-  "Home",
+  "InstructionModel",
   "PageHeader",
   "Benchmark",
   "Perplexity",

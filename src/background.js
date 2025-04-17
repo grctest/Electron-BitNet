@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+import { execFile, spawn } from 'child_process';
 import path from 'path';
 import os from 'os';
 import process from 'process';
@@ -28,61 +28,52 @@ protocol.registerSchemesAsPrivileged([
   }
 ]);
 
-function runInference(args) {
-  let mainPath = path.join(app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
-
-  if (!fs.existsSync(mainPath)) {
-    return;
+function sendInstructPrompt(promptText) {
+  if (inferenceProcess && inferenceProcess.stdin && !inferenceProcess.stdin.destroyed) {
+    try {
+      // llama.cpp expects prompts ending with newline in interactive mode
+      inferenceProcess.stdin.write(promptText + '\n');
+      console.log('Sent prompt to instruction process:', promptText);
+    } catch (error) {
+      console.error('Failed to write to instruction process stdin:', error);
+      mainWindow.webContents.send('aiError', 'Failed to send prompt to AI.');
+      terminateInference(); // Stop if we can't communicate
+    }
+  } else {
+    console.warn('Attempted to send prompt, but instruction process stdin is not available.');
+    mainWindow.webContents.send('aiError', 'AI process is not running or not ready for input.');
   }
-
-  const commandArgs = [
-    '-m', args.model,
-    '-n', args.n_predict,
-    '-t', args.threads,
-    '-p', args.prompt,
-    '-ngl', '0',
-    '-c', args.ctx_size,
-    '--temp', args.temperature,
-    '-b', '1'
-  ];
-
-  inferenceProcess = execFile(mainPath, commandArgs, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`execFile error: ${error}`);
-      return;
-    }
-
-    if (stderr) {
-      console.error(`stderr: ${stderr}`);
-    }
-
-    if (stdout) {
-      mainWindow.webContents.send('aiResponse', stdout);
-    }
-
-    mainWindow.webContents.send('aiComplete');
-    inferenceProcess = null;
-  });
 }
 
 function terminateInference() {
   if (inferenceProcess) {
     console.log('Terminating inference process...');
+    const pid = inferenceProcess.pid; // Get PID before killing
     try {
-      inferenceProcess.kill('SIGKILL'); // Use SIGKILL to forcefully terminate the process
-      inferenceProcess.stdout.removeAllListeners('data');
-      inferenceProcess.stderr.removeAllListeners('data');
-      inferenceProcess = null;
-      console.log('Inference process terminated.');
+        // Check if it's a spawned process (has stdin property)
+        if (inferenceProcess.stdin) {
+            inferenceProcess.stdout?.removeAllListeners();
+            inferenceProcess.stderr?.removeAllListeners();
+            inferenceProcess.removeAllListeners('close');
+            inferenceProcess.removeAllListeners('error');
+        }
+        // Force kill works for both spawn and execFile child processes
+        inferenceProcess.kill('SIGKILL');
+        console.log(`Inference process (PID: ${pid}) terminated.`);
     } catch (error) {
-      console.error('Failed to terminate inference process:', error);
+      console.error(`Failed to terminate inference process (PID: ${pid}):`, error);
+    } finally {
+       inferenceProcess = null;
+       // Ensure the frontend knows it stopped, send appropriate completion signal
+       if (mainWindow && mainWindow.webContents) {
+           // Decide which completion signal based on context, or send a generic one
+           mainWindow.webContents.send('aiComplete'); // For original mode
+           mainWindow.webContents.send('aiInstructComplete'); // For instruction mode
+       }
     }
   } else {
     console.log('No inference process to terminate.');
   }
-
-  mainWindow.webContents.send('aiComplete');
-  inferenceProcess = null;
 }
 
 function runBenchmark(args) {
@@ -199,6 +190,66 @@ function terminatePerplexity() {
   perplexityProcess = null;
 }
 
+// --- New function to initialize instruction mode ---
+function initInstructInference(args) {
+  let mainPath = path.join(app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
+
+  if (!fs.existsSync(mainPath)) {
+    mainWindow.webContents.send('aiError', 'llama-cli.exe not found.');
+    mainWindow.webContents.send('aiInstructComplete'); // Use a specific complete signal if needed
+    return;
+  }
+
+  // Terminate any existing process first
+  terminateInference();
+
+  const commandArgs = [
+    '-m', args.model,
+    '-n', args.n_predict, // Max tokens per *turn* might need adjustment
+    '-t', args.threads,
+    '-p', args.prompt, // This is the initial system prompt
+    '-ngl', '0',
+    '-c', args.ctx_size,
+    '--temp', args.temperature,
+    '-b', '1',
+    '-cnv' // Enable instruction/conversation mode
+  ];
+
+  try {
+    inferenceProcess = spawn(mainPath, commandArgs);
+    mainWindow.webContents.send('aiInstructStarted'); // Signal that it started
+
+    inferenceProcess.stdout.on('data', (data) => {
+      mainWindow.webContents.send('aiResponseChunk', data.toString());
+    });
+
+    inferenceProcess.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+      // Treat stderr as part of the output stream for now
+      mainWindow.webContents.send('aiResponseChunk', data.toString());
+    });
+
+    inferenceProcess.on('error', (error) => {
+      console.error(`spawn error: ${error}`);
+      mainWindow.webContents.send('aiError', `Failed to start instruction mode: ${error.message}`);
+      mainWindow.webContents.send('aiInstructComplete');
+      inferenceProcess = null;
+    });
+
+    inferenceProcess.on('close', (code) => {
+      console.log(`Instruction process exited with code ${code}`);
+      mainWindow.webContents.send('aiInstructComplete'); // Signal completion
+      inferenceProcess = null;
+    });
+
+  } catch (error) {
+      console.error(`Failed to spawn instruction process: ${error}`);
+      mainWindow.webContents.send('aiError', `Failed to spawn instruction process: ${error.message}`);
+      mainWindow.webContents.send('aiInstructComplete');
+      inferenceProcess = null;
+  }
+}
+
 const createWindow = async () => {
   mainWindow = new BrowserWindow({
     minWidth: 480,
@@ -274,7 +325,35 @@ const createWindow = async () => {
   });
 
   ipcMain.on("runInference", (event, arg) => {
-    runInference(arg);
+    let mainPath = path.join(app.getAppPath(), 'bin', 'Release', 'llama-cli.exe');
+    if (!fs.existsSync(mainPath)) {
+      mainWindow.webContents.send('aiError', 'llama-cli.exe not found.');
+      mainWindow.webContents.send('aiComplete');
+      return;
+    }
+    terminateInference(); // Terminate any existing process
+    const commandArgs = [ /* ... original args ... */
+      '-m', arg.model, '-n', arg.n_predict, '-t', arg.threads, '-p', arg.prompt,
+      '-ngl', '0', '-c', arg.ctx_size, '--temp', arg.temperature, '-b', '1'
+    ];
+    const process = execFile(mainPath, commandArgs, (error, stdout, stderr) => {
+      if (inferenceProcess === process) {
+          inferenceProcess = null;
+          if (error) { console.error(`execFile error: ${error}`); mainWindow.webContents.send('aiError', `Execution Error: ${error.message}`); mainWindow.webContents.send('aiComplete'); return; }
+          if (stderr) { console.error(`stderr: ${stderr}`); /* Optionally send stderr */ }
+          if (stdout) { mainWindow.webContents.send('aiResponse', stdout); }
+          mainWindow.webContents.send('aiComplete');
+      }
+    });
+    inferenceProcess = process; // Store ref
+  });
+
+  ipcMain.on("initInstructInference", (event, arg) => { // For interactive start
+    initInstructInference(arg);
+  });
+
+  ipcMain.on("sendInstructPrompt", (event, promptText) => { // For interactive follow-up
+    sendInstructPrompt(promptText);
   });
 
   ipcMain.on("stopInference", (event) => {
@@ -406,11 +485,13 @@ if (currentOS === "win32" || currentOS === "linux") {
   app.on('before-quit', (event) => {
     terminateInference();
     terminateBenchmark();
+    terminatePerplexity();
   });
   
   app.on('will-quit', (event) => {
     terminateInference();
     terminateBenchmark();
+    terminatePerplexity();
   });
 
   app.on("window-all-closed", () => {
