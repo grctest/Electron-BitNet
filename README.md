@@ -2,7 +2,7 @@
 
 Running [Microsoft's BitNet](https://github.com/microsoft/BitNet) via [Astro](https://astro.build/), [React](https://react.dev/) & [Electron](https://www.electronjs.org/)!
 
-![image](https://github.com/user-attachments/assets/e57385f9-3fa8-4da6-95be-25c9d9b31b04)
+![image](https://github.com/user-attachments/assets/d8af4105-7ca6-49b6-9b6c-5ead7f332b11)
 
 ## Functionality
 
