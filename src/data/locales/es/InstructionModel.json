@@ -1,4 +1,6 @@
 {
+  "loading": "Cargando...",
+  "delete": "Borrar",
   "title": "Modo de instrucción siguiente",
   "description": "Participe en una conversación con el LLM de 1 bits. ",
   "commandOptions": "Opciones de comando",

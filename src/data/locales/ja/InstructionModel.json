@@ -1,4 +1,6 @@
 {
+  "loading": "読み込み...",
+  "delete": "消去",
   "title": "次のモードの命令",
   "description": "1ビットLLMとの会話に参加します。",
   "commandOptions": "コマンドオプション",

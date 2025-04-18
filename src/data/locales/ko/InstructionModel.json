@@ -1,4 +1,6 @@
 {
+  "loading": "로딩 ...",
+  "delete": "삭제",
   "title": "다음 모드 다음 모드",
   "description": "1 비트 LLM과 대화하십시오. ",
   "commandOptions": "명령 옵션",

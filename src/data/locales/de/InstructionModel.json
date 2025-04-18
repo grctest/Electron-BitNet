@@ -1,4 +1,6 @@
 {
+  "loading": "Laden...",
+  "delete": "Löschen",
   "title": "Befehlsmodus",
   "description": "Ein Gespräch mit dem 1-Bit-LLM führen. ",
   "commandOptions": "Befehlsoptionen",

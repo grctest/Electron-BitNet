@@ -1,4 +1,6 @@
 {
+    "loading": "載入中...",
+    "delete": "刪除",
     "title": "指令跟隨模式",
     "description": "與 1 位 LLM 進行對話。提供系統提示,然後以交互方式聊天。",
     "commandOptions": "命令選項",

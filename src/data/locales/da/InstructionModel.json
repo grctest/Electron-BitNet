@@ -1,4 +1,6 @@
 {
+  "loading": "Indlæser ...",
+  "delete": "Slet",
   "title": "Instruktionsfølgende tilstand",
   "description": "Deltag i en samtale med 1-bit LLM. ",
   "commandOptions": "Kommandoindstillinger",

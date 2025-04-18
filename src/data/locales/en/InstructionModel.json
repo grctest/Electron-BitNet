@@ -1,4 +1,6 @@
 {
+    "loading": "Loading...",
+    "delete": "Delete",
     "title": "Instruction Following Mode",
     "description": "Engage in a conversation with the 1-bit LLM. Provide a system prompt and then chat interactively.",
     "commandOptions": "Command Options",
