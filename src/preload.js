@@ -28,7 +28,6 @@ contextBridge.exposeInMainWorld("electron", {
   // --- Instruction/Conversational Inference (Interactive) ---
   initInstructInference: async (args) => ipcRenderer.send("initInstructInference", args),
   sendInstructPrompt: async (promptText) => ipcRenderer.send("sendInstructPrompt", promptText),
-  interjectInference: async () => ipcRenderer.send("interjectInference"), // Added interject
   onAiInstructStarted: (func) => {
     const listener = (event) => func();
     ipcRenderer.on("aiInstructStarted", listener);
@@ -43,12 +42,6 @@ contextBridge.exposeInMainWorld("electron", {
     const listener = (event) => func();
     ipcRenderer.on("aiInstructComplete", listener);
     return () => ipcRenderer.removeListener("aiInstructComplete", listener); // Return cleanup function
-  },
-  // Ensure onAiError is present and correct
-  onAiError: (func) => {
-    const listener = (event, errorMsg) => func(errorMsg);
-    ipcRenderer.on("aiError", listener);
-    return () => ipcRenderer.removeListener("aiError", listener);
   },
 
   // --- Benchmark ---

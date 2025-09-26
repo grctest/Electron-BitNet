@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { UploadIcon, ReloadIcon, PaperPlaneIcon, TrashIcon, PauseIcon, ClipboardCopyIcon, CheckIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon } from '@radix-ui/react-icons'; // Added ClockIcon
-import { useTranslation } from "react-i18next";
-import { i18n as i18nInstance, locale } from "@/lib/i18n.js";
 import ReactMarkdown from 'react-markdown';
-// Import SyntaxHighlighter and a style (e.g., atomDark)
+
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Or choose another style
+import { atomDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { VariableSizeList as List } from 'react-window';
 import DOMPurify from 'dompurify';
+
+import { useTranslation } from "react-i18next";
+import { i18n as i18nInstance, locale } from "@/lib/i18n.js";
 
 import {
   Card,
@@ -19,9 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge"; // Added Badge import
 import {
@@ -34,183 +33,6 @@ import {
 
 import ExternalLink from "@/components/ExternalLink.jsx";
 import HoverInfo from "@/components/HoverInfo.jsx";
-
-// Memoized CodeBlock for performance and security
-const CodeBlock = React.memo((props) => {
-    const { node, inline, className, children, ...rest } = props; // Destructure props
-
-    const { t } = useTranslation(locale.get(), { i18n: i18nInstance });
-    const match = /language-(\w+)/.exec(className || '');
-    const codeString = String(children).replace(/\n$/, '');
-    const [copied, setCopied] = useState(false);
-
-    console.log({props})
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(codeString).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1500);
-        }).catch(err => {
-            console.error('Failed to copy code: ', err);
-        });
-    };
-
-    // Sanitize codeString for XSS (using DOMPurify)
-    const safeCodeString = DOMPurify.sanitize(codeString);
-
-    return className ? (
-        <div
-            className="my-2 relative group w-full min-w-0 max-w-full rounded-lg"
-            style={{
-                maxWidth: '100%',
-                overflowX: 'auto',
-                boxSizing: 'border-box',
-                fontFamily: 'var(--font-mono, monospace)',
-            }}
-        >
-            <button
-                onClick={handleCopy}
-                className={`absolute top-2 right-2 z-10 p-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity ${copied ? 'opacity-100' : ''}`}
-                title={copied ? t('InstructionModel:copied') : t('InstructionModel:copyCode')}
-                aria-label={copied ? t('InstructionModel:copied') : t('InstructionModel:copyCode')}
-                tabIndex={0}
-            >
-                {copied ? <CheckIcon className="h-4 w-4 text-green-400" /> : <ClipboardCopyIcon className="h-4 w-4" />}
-            </button>
-            <div
-                style={{
-                    maxWidth: '100%',
-                    overflowX: 'auto',
-                    boxSizing: 'border-box',
-                }}
-            >
-                <SyntaxHighlighter
-                    style={atomDark}
-                    language={match ? match[1] : 'text'}
-                    PreTag="div"
-                    className="rounded border border-border bg-muted/50 p-3 pt-8 text-sm min-w-0 max-w-full whitespace-pre overflow-x-auto font-mono"
-                    customStyle={{
-                        maxWidth: '100%',
-                        overflowX: 'auto',
-                        wordBreak: 'break-all',
-                        whiteSpace: 'pre-wrap',
-                        boxSizing: 'border-box',
-                        fontFamily: 'var(--font-mono, monospace)',
-                    }}
-                    wrapLongLines={true}
-                    {...props}
-                >
-                    {safeCodeString}
-                </SyntaxHighlighter>
-            </div>
-        </div>
-    ) : (
-        <code
-            // Apply simpler inline styling - let prose handle flow/wrapping
-            // Use a darker background and lighter text for contrast, similar to the highlighted block
-            className={`bg-neutral-800 text-neutral-100 px-1 py-0.5 rounded text-sm font-mono`}
-            style={{
-                display: 'inline', // Ensure it behaves as inline
-                fontFamily: 'var(--font-mono, monospace)',
-                margin: '0 0.1em', // Add slight horizontal margin for spacing
-                padding: '0.1em 0.4em', // Adjust padding slightly (overrides className padding)
-                verticalAlign: 'baseline', // Align with surrounding text
-                whiteSpace: 'normal', // Allow wrapping if needed
-                width: 'auto' // Ensure width is not forced
-             }}
-            {...props}
-        >
-            {children}
-        </code>
-    );
-});
-
-// Memoized ChatMessage for performance
-const ChatMessage = React.memo(function ChatMessage({ sender, message, timestamp, onRegenerate, canRegenerate, isFirstAiMessage, onDelete, generationTime }) { // Added generationTime prop
-    const { t } = useTranslation(locale.get(), { i18n: i18nInstance });
-    const isUser = sender === 'user';
-    const senderName = isUser ? t("InstructionModel:you") : t("InstructionModel:ai");
-    const avatarText = isUser ? '🤔' : '🤖';
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText(message).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 1500);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-        });
-    };
-
-    const formattedTime = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
-    const iconButtonStyle = "rounded bg-muted p-1.5 hover:bg-primary/20 transition-colors border border-border flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-primary"; // Adjusted style slightly
-    const iconButtonSize = { width: 28, height: 28 }; // Adjusted size slightly
-
-    return (
-        <div className={`flex flex-col gap-1 p-2 w-full max-w-full`}>
-            <div className={`flex items-start gap-2 w-full max-w-full min-w-0 ${isUser ? 'justify-end flex-row-reverse' : ''}`}>
-                {/* Avatar */}
-                <div className="flex-shrink-0">
-                    <Avatar className="w-8 h-8 border mt-1">
-                        <AvatarFallback>{avatarText}</AvatarFallback>
-                    </Avatar>
-                </div>
-                {/* Message Bubble & Content */}
-                <div className={`flex flex-col min-w-0 rounded-lg text-sm ${isUser ? 'ml-auto bg-primary text-primary-foreground max-w-[75%]' : 'flex-1 bg-muted max-w-full'} transition-all duration-300 ease-in-out`}>
-                    <div className="p-3 break-words overflow-x-auto" style={{ maxWidth: '100%', boxSizing: 'border-box', overflowX: 'auto' }}>
-                        <p className="font-semibold mb-1">{senderName}</p>
-                        {isUser ? (
-                            <p className="whitespace-pre-wrap break-words">{message}</p>
-                        ) : (
-                            <div className="prose prose-sm dark:prose-invert transition-all duration-300 ease-in-out">
-                                <ReactMarkdown components={{ code: CodeBlock }}>{message}</ReactMarkdown>
-                            </div>
-                        )}
-                    </div>
-                     {/* Action buttons for AI only, moved below content */}
-                     {!isUser && (
-                        <div className="flex items-center gap-1.5 flex-shrink-0 p-2 border-t border-border/50 mt-1 pt-1">
-                            <button
-                                className={iconButtonStyle}
-                                title={copied ? t('InstructionModel:copied') : t('InstructionModel:copy')}
-                                onClick={handleCopy}
-                                style={iconButtonSize}
-                                disabled={copied}
-                                tabIndex={0}
-                            >
-                                {copied ? <CheckIcon className="h-3.5 w-3.5 text-green-500" /> : <ClipboardCopyIcon className="h-3.5 w-3.5" />}
-                            </button>
-                            <button
-                                className={iconButtonStyle}
-                                title={t('InstructionModel:deleteResponse')}
-                                onClick={onDelete}
-                                style={iconButtonSize}
-                                tabIndex={0}
-                            >
-                                <TrashIcon className="h-3.5 w-3.5 text-red-500" />
-                            </button>
-                        </div>
-                    )}
-                </div>
-            </div>
-            {/* Timestamp and Generation Time (only for AI) */}
-            <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mt-1 px-2 items-center gap-2`}>
-                {!isUser && ( // Only show timestamp and generation time for AI
-                    <>
-                        <span className="text-xs text-muted-foreground">{formattedTime}</span>
-                        {generationTime !== undefined && (
-                            <Badge variant="outline" className="px-1.5 py-0.5 text-xs">
-                                <ClockIcon className="h-3 w-3 mr-1" />
-                                {generationTime.toFixed(1)}s
-                            </Badge>
-                        )}
-                    </>
-                )}
-                 {/* Removed timestamp for user messages */}
-            </div>
-        </div>
-    );
-});
 
 export default function InstructionModel(properties) {
     const { t, i18n } = useTranslation(locale.get(), { i18n: i18nInstance });
@@ -241,6 +63,189 @@ export default function InstructionModel(properties) {
 
     // --- Chat Scroll Lock State ---
     const [autoScroll, setAutoScroll] = useState(true);
+
+    // Memoized CodeBlock for performance and security
+    const CodeBlock = React.memo((props) => {
+        const { node, inline, className, children, ...rest } = props; // Destructure props
+
+        const { t } = useTranslation(locale.get(), { i18n: i18nInstance });
+        const match = /language-(\w+)/.exec(className || '');
+        const codeString = String(children).replace(/\n$/, '');
+        const [copied, setCopied] = useState(false);
+
+        console.log({props})
+
+        const handleCopy = () => {
+            navigator.clipboard.writeText(codeString).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500);
+            }).catch(err => {
+                console.error('Failed to copy code: ', err);
+            });
+        };
+
+        // Sanitize codeString for XSS (using DOMPurify)
+        const safeCodeString = DOMPurify.sanitize(codeString);
+
+        return className ? (
+            <div
+                className="my-2 relative group w-full min-w-0 max-w-full rounded-lg"
+                style={{
+                    maxWidth: '100%',
+                    overflowX: 'auto',
+                    boxSizing: 'border-box',
+                    fontFamily: 'var(--font-mono, monospace)',
+                }}
+            >
+                <button
+                    onClick={handleCopy}
+                    className={`absolute top-2 right-2 z-10 p-1 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity ${copied ? 'opacity-100' : ''}`}
+                    title={copied ? t('InstructionModel:copied') : t('InstructionModel:copyCode')}
+                    aria-label={copied ? t('InstructionModel:copied') : t('InstructionModel:copyCode')}
+                    tabIndex={0}
+                >
+                    {copied ? <CheckIcon className="h-4 w-4 text-green-400" /> : <ClipboardCopyIcon className="h-4 w-4" />}
+                </button>
+                <div
+                    style={{
+                        maxWidth: '100%',
+                        overflowX: 'auto',
+                        boxSizing: 'border-box',
+                    }}
+                >
+                    <SyntaxHighlighter
+                        style={atomDark}
+                        language={match ? match[1] : 'text'}
+                        PreTag="div"
+                        className="rounded border border-border bg-muted/50 p-3 pt-8 text-sm min-w-0 max-w-full whitespace-pre overflow-x-auto font-mono"
+                        customStyle={{
+                            maxWidth: '100%',
+                            overflowX: 'auto',
+                            wordBreak: 'break-all',
+                            whiteSpace: 'pre-wrap',
+                            boxSizing: 'border-box',
+                            fontFamily: 'var(--font-mono, monospace)',
+                        }}
+                        wrapLongLines={true}
+                        {...props}
+                    >
+                        {safeCodeString}
+                    </SyntaxHighlighter>
+                </div>
+            </div>
+        ) : (
+            <code
+                // Apply simpler inline styling - let prose handle flow/wrapping
+                // Use a darker background and lighter text for contrast, similar to the highlighted block
+                className={`bg-neutral-800 text-neutral-100 px-1 py-0.5 rounded text-sm font-mono`}
+                style={{
+                    display: 'inline', // Ensure it behaves as inline
+                    fontFamily: 'var(--font-mono, monospace)',
+                    margin: '0 0.1em', // Add slight horizontal margin for spacing
+                    padding: '0.1em 0.4em', // Adjust padding slightly (overrides className padding)
+                    verticalAlign: 'baseline', // Align with surrounding text
+                    whiteSpace: 'normal', // Allow wrapping if needed
+                    width: 'auto' // Ensure width is not forced
+                }}
+                {...props}
+            >
+                {children}
+            </code>
+        );
+    });
+
+    // Memoized ChatMessage for performance
+    const ChatMessage = React.memo(function ChatMessage({ sender, message, timestamp, onRegenerate, canRegenerate, isFirstAiMessage, onDelete, generationTime }) { // Added generationTime prop
+        const { t } = useTranslation(locale.get(), { i18n: i18nInstance });
+        const isUser = sender === 'user';
+        const senderName = isUser ? t("InstructionModel:you") : t("InstructionModel:ai");
+        const avatarText = isUser ? '🤔' : '🤖';
+        const [copied, setCopied] = useState(false);
+
+        const handleCopy = () => {
+            navigator.clipboard.writeText(message).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1500);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        };
+
+        const formattedTime = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
+        const iconButtonStyle = "rounded bg-muted p-1.5 hover:bg-primary/20 transition-colors border border-border flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-primary"; // Adjusted style slightly
+        const iconButtonSize = { width: 28, height: 28 }; // Adjusted size slightly
+
+        return (
+            <div className={`flex flex-col gap-1 p-2 w-full max-w-full`}>
+                <div className={`flex items-start gap-2 w-full max-w-full min-w-0 ${isUser ? 'justify-end flex-row-reverse' : ''}`}>
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                        <Avatar className="w-8 h-8 border mt-1">
+                            <AvatarFallback>{avatarText}</AvatarFallback>
+                        </Avatar>
+                    </div>
+                    {/* Message Bubble & Content */}
+                    <div className={`flex flex-col min-w-0 rounded-lg text-sm ${isUser ? 'ml-auto bg-primary text-primary-foreground max-w-[75%]' : 'flex-1 bg-muted max-w-full'} transition-all duration-300 ease-in-out`}>
+                        <div className="p-3 break-words overflow-x-auto" style={{ maxWidth: '100%', boxSizing: 'border-box', overflowX: 'auto' }}>
+                            <p className="font-semibold mb-1">{senderName}</p>
+                            {isUser ? (
+                                <p className="whitespace-pre-wrap break-words">{message}</p>
+                            ) : (
+                                <div className="prose prose-sm dark:prose-invert transition-all duration-300 ease-in-out">
+                                    <ReactMarkdown components={{ code: CodeBlock }}>{message}</ReactMarkdown>
+                                </div>
+                            )}
+                        </div>
+                        {/* Action buttons for AI only, moved below content */}
+                        {!isUser && (
+                            <div className="flex items-center gap-1.5 flex-shrink-0 p-2 border-t border-border/50 mt-1 pt-1">
+                                {
+                                    !isAiResponding
+                                        ? <>
+                                            <button
+                                                className={iconButtonStyle}
+                                                title={copied ? t('InstructionModel:copied') : t('InstructionModel:copy')}
+                                                onClick={handleCopy}
+                                                style={iconButtonSize}
+                                                disabled={copied}
+                                                tabIndex={0}
+                                            >
+                                                {copied ? <CheckIcon className="h-3.5 w-3.5 text-green-500" /> : <ClipboardCopyIcon className="h-3.5 w-3.5" />}
+                                            </button>
+                                            <button
+                                                className={iconButtonStyle}
+                                                title={t('InstructionModel:deleteResponse')}
+                                                onClick={onDelete}
+                                                style={iconButtonSize}
+                                                tabIndex={0}
+                                            >
+                                                <TrashIcon className="h-3.5 w-3.5 text-red-500" />
+                                            </button>
+                                        </>
+                                        : null
+                                }
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {/* Timestamp and Generation Time (only for AI) */}
+                <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mt-1 px-2 items-center gap-2`}>
+                    {!isUser && ( // Only show timestamp and generation time for AI
+                        <>
+                            <span className="text-xs text-muted-foreground">{formattedTime}</span>
+                            {generationTime !== undefined && (
+                                <Badge variant="outline" className="px-1.5 py-0.5 text-xs">
+                                    <ClockIcon className="h-3 w-3 mr-1" />
+                                    {generationTime.toFixed(1)}s
+                                </Badge>
+                            )}
+                        </>
+                    )}
+                    {/* Removed timestamp for user messages */}
+                </div>
+            </div>
+        );
+    });
 
     // --- Effects ---
     useEffect(() => {
@@ -417,12 +422,6 @@ export default function InstructionModel(properties) {
         if (!conversationActive) return;
         window.electron.stopInference();
         setChatHistory([]); // Clear chat log when stopping conversation
-    };
-
-    const handleInterject = () => {
-        if (!conversationActive || !isAiResponding) return;
-        console.log('Attempting to interject AI response...');
-        window.electron.interjectInference();
     };
 
     const handleSendUserMessage = useCallback(() => {
@@ -854,15 +853,12 @@ export default function InstructionModel(properties) {
                                                             canRegenerate={canRegen}
                                                             onRegenerate={() => handleRegenerate(index)}
                                                             onDelete={() => handleDeleteMessage(index)}
-                                                            // Pass isFirstAiMessage prop if needed by ChatMessage, though it's unused currently
-                                                            // isFirstAiMessage={index === firstAiIndex}
                                                         />
                                                     </div>
                                                 </div>
                                             );
                                         }
 
-                                        // Fallback for safety (e.g., if index is out of bounds somehow)
                                         return <div style={style}></div>;
                                     }}
                                 </List>
@@ -879,22 +875,31 @@ export default function InstructionModel(properties) {
                                     rows={1}
                                     className="min-h-[40px] max-h-[150px] resize-none"
                                 />
-                                <Button
-                                    type="button"
-                                    size="icon"
-                                    onClick={isAiResponding ? handleInterject : handleSendUserMessage} // Switch action based on state
-                                    disabled={!conversationActive || (!isAiResponding && !currentUserInput.trim())} // Enable interject even if input is empty
-                                    title={isAiResponding ? t("InstructionModel:interject") : t("InstructionModel:sendMessage")} // Dynamic title
-                                >
-                                    {isAiResponding ? (
-                                        <PauseIcon className="h-4 w-4" /> // Show Pause icon when AI is responding
-                                    ) : (
-                                        <PaperPlaneIcon className="h-4 w-4" /> // Show Send icon otherwise
-                                    )}
-                                    <span className="sr-only">
-                                        {isAiResponding ? t("InstructionModel:interject") : t("InstructionModel:sendMessage")}
-                                    </span>
-                                </Button>
+                                {
+                                    isAiResponding || !currentUserInput.trim()
+                                        ?   <Button
+                                                type="button"
+                                                size="icon"
+                                                disabled
+                                                title={t("InstructionModel:sendMessage")}
+                                            >
+                                                <PaperPlaneIcon className="h-4 w-4" />
+                                                <span className="sr-only">
+                                                    {t("InstructionModel:sendMessage")}
+                                                </span>
+                                            </Button>
+                                        :   <Button
+                                                type="button"
+                                                size="icon"
+                                                onClick={handleSendUserMessage}
+                                                title={t("InstructionModel:sendMessage")}
+                                            >
+                                                <PaperPlaneIcon className="h-4 w-4" />
+                                                <span className="sr-only">
+                                                    {t("InstructionModel:sendMessage")}
+                                                </span>
+                                            </Button>
+                                }
                             </div>
                         </CardFooter>
                     </div>
