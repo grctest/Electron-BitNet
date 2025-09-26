@@ -876,7 +876,6 @@ export default function InstructionModel(properties) {
                                     value={currentUserInput}
                                     onChange={(e) => setCurrentUserInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
-                                    disabled={!conversationActive || isAiResponding}
                                     rows={1}
                                     className="min-h-[40px] max-h-[150px] resize-none"
                                 />
