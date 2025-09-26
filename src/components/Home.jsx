@@ -169,7 +169,7 @@ const ChatMessage = React.memo(function ChatMessage({ sender, message, timestamp
                     </div>
                      {/* Action buttons for AI only, moved below content */}
                      {!isUser && (
-                        <div className="flex items-center gap-1.5 flex-shrink-0 p-2 pt-0 border-t border-border/50 mt-1 pt-1">
+                        <div className="flex items-center gap-1.5 flex-shrink-0 p-2 border-t border-border/50 mt-1 pt-1">
                             <button
                                 className={iconButtonStyle}
                                 title={copied ? t('InstructionModel:copied') : t('InstructionModel:copy')}
@@ -525,6 +525,7 @@ export default function InstructionModel(properties) {
     const PARAGRAPH_SPACING = 10;   // Extra space for paragraph breaks (\n\n)
     const CODE_BLOCK_PADDING = 40;  // Padding/margin around code block + copy button space
     const CODE_LINE_HEIGHT = 20;    // Approx height of a line within a code block
+    const ROW_VERTICAL_PADDING = 16; // Buffer to avoid cramped layout after measurement
 
     // --- Helper to estimate code block height ---
     const estimateCodeBlockHeight = (codeContent) => {
@@ -538,23 +539,26 @@ export default function InstructionModel(properties) {
         // Handle typing indicator height
         if (index === chatHistory.length) {
             const showTypingIndicator = isAiResponding && chatHistory.length > 0 && chatHistory[chatHistory.length - 1]?.sender === 'user';
-            return showTypingIndicator ? 60 : 0; // Adjusted typing indicator height
+            return showTypingIndicator ? (messageHeights.current[index] ?? 60) : 0; // Prefer measured height when available
         }
 
         // Handle hidden first AI message
         if (index === 0 && chatHistory[0]?.sender === 'ai') {
-            // Ensure cache is 0 if it wasn't already
             if (messageHeights.current[index] !== 0) {
                 messageHeights.current[index] = 0;
-                // No need to reset here, height is fixed at 0
             }
             return 0;
+        }
+
+        const cachedHeight = messageHeights.current[index];
+        if (cachedHeight != null) {
+            return cachedHeight;
         }
 
         // Estimate height based on content for other messages
         const messageData = chatHistory[index];
         if (!messageData || !messageData.message) {
-            return BASE_MESSAGE_HEIGHT; // Default minimum
+            return BASE_MESSAGE_HEIGHT + ROW_VERTICAL_PADDING; // Default minimum
         }
 
         const message = messageData.message;
@@ -594,35 +598,36 @@ export default function InstructionModel(properties) {
         estimatedHeight += totalCodeBlockHeight;
 
         // Use cached height if available and larger than estimate (measurement is king)
-        const cachedHeight = messageHeights.current[index];
-        if (cachedHeight && cachedHeight > estimatedHeight) {
-            return cachedHeight;
-        }
-
-        // Return the estimated height, ensuring a minimum
-        // Add a small safety buffer
-        return Math.max(estimatedHeight, BASE_MESSAGE_HEIGHT) + 10;
+        // Return the estimated height, ensuring a minimum, plus padding buffer
+        return Math.max(estimatedHeight, BASE_MESSAGE_HEIGHT) + ROW_VERTICAL_PADDING;
 
     }, [chatHistory, isAiResponding]); // Dependencies: chatHistory and isAiResponding
 
     // --- VariableSizeList row measurer ---
     const measureRow = useCallback((index, node) => {
-        if (node && node.offsetHeight && messageHeights.current[index] !== node.offsetHeight) {
-            // Ensure height is at least a minimum value to avoid collapse issues
-            const newHeight = Math.max(node.offsetHeight, 20); // Ensure a minimum height
-            if (messageHeights.current[index] !== newHeight) {
-                messageHeights.current[index] = newHeight;
-                if (chatListRef.current) {
-                    // Use requestAnimationFrame to avoid potential state update loops during measurement
-                    requestAnimationFrame(() => {
-                        if (chatListRef.current) {
-                            chatListRef.current.resetAfterIndex(index, false); // Use false to avoid immediate scroll jump
-                        }
-                    });
-                }
+        if (!node) return;
+
+        // Keep hidden first AI message collapsed
+        if (index === 0 && chatHistory[0]?.sender === 'ai') {
+            if (messageHeights.current[index] !== 0) {
+                messageHeights.current[index] = 0;
+            }
+            return;
+        }
+
+        const rawHeight = node.scrollHeight || node.offsetHeight || 0;
+        if (!rawHeight) return;
+
+        const measuredHeight = Math.max(rawHeight + ROW_VERTICAL_PADDING, BASE_MESSAGE_HEIGHT);
+        if (messageHeights.current[index] !== measuredHeight) {
+            messageHeights.current[index] = measuredHeight;
+            if (chatListRef.current) {
+                requestAnimationFrame(() => {
+                    chatListRef.current?.resetAfterIndex(index, false);
+                });
             }
         }
-    }, []); // Dependencies removed
+    }, [chatHistory]);
 
     // --- Scroll to bottom if autoScroll ---
     useEffect(() => {
@@ -795,8 +800,8 @@ export default function InstructionModel(properties) {
                                         // 1. Handle initial loading indicator (Only if the very first message is AI and loading)
                                         if (index === 0 && isInitialAiResponsePhase) {
                                             return (
-                                                <div ref={node => measureRow(index, node)} style={style}>
-                                                    <div className="flex text-left justify-center gap-2 p-4 text-muted-foreground">
+                                                <div style={style}>
+                                                    <div ref={node => measureRow(index, node)} className="flex text-left justify-center gap-2 p-4 text-muted-foreground">
                                                         <span>{t('InstructionModel:loading')}</span>
                                                     </div>
                                                 </div>
@@ -808,8 +813,10 @@ export default function InstructionModel(properties) {
                                         if (index === chatHistory.length && showTypingIndicator) {
                                             // Use a fixed, known key for the typing indicator
                                             return (
-                                                <div key="typing-indicator" ref={node => measureRow(index, node)} style={style}>
-                                                    <ChatMessage sender="ai" message={t("InstructionModel:typing")} timestamp={new Date()} />
+                                                <div key="typing-indicator" style={style}>
+                                                    <div ref={node => measureRow(index, node)}>
+                                                        <ChatMessage sender="ai" message={t("InstructionModel:typing")} timestamp={new Date()} />
+                                                    </div>
                                                 </div>
                                             );
                                         }
@@ -838,17 +845,19 @@ export default function InstructionModel(properties) {
                                             const key = `${msg.sender}-${msg.timestamp?.getTime() || index}-${index}`;
 
                                             return (
-                                                <div key={key} ref={node => measureRow(index, node)} style={style}>
-                                                    <ChatMessage
-                                                        sender={msg.sender}
-                                                        message={msg.message}
-                                                        timestamp={msg.timestamp}
-                                                        canRegenerate={canRegen}
-                                                        onRegenerate={() => handleRegenerate(index)}
-                                                        onDelete={() => handleDeleteMessage(index)}
-                                                        // Pass isFirstAiMessage prop if needed by ChatMessage, though it's unused currently
-                                                        // isFirstAiMessage={index === firstAiIndex}
-                                                    />
+                                                <div key={key} style={style}>
+                                                    <div ref={node => measureRow(index, node)}>
+                                                        <ChatMessage
+                                                            sender={msg.sender}
+                                                            message={msg.message}
+                                                            timestamp={msg.timestamp}
+                                                            canRegenerate={canRegen}
+                                                            onRegenerate={() => handleRegenerate(index)}
+                                                            onDelete={() => handleDeleteMessage(index)}
+                                                            // Pass isFirstAiMessage prop if needed by ChatMessage, though it's unused currently
+                                                            // isFirstAiMessage={index === firstAiIndex}
+                                                        />
+                                                    </div>
                                                 </div>
                                             );
                                         }
