@@ -17,7 +17,6 @@
     "asar": false,
     "npmRebuild": false,
     "buildDependenciesFromSource": false,
-    "includeSubNodeModules": true,
     "files": [
       "app/**/*",
       "bin/**/*",
