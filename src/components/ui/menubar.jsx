@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import * as MenubarPrimitive from "@radix-ui/react-menubar"
 import { cn } from "@/lib/utils"
@@ -172,9 +170,9 @@ const MenubarShortcut = ({
   ...props
 }) => {
   return (
-    (<span
+    <span
       className={cn("ml-auto text-xs tracking-widest text-muted-foreground", className)}
-      {...props} />)
+      {...props} />
   );
 }
 MenubarShortcut.displayname = "MenubarShortcut"

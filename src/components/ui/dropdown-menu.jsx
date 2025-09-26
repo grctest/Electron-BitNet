@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -129,9 +131,9 @@ const DropdownMenuShortcut = ({
   ...props
 }) => {
   return (
-    (<span
+    <span
       className={cn("ml-auto text-xs tracking-widest opacity-60", className)}
-      {...props} />)
+      {...props} />
   );
 }
 DropdownMenuShortcut.displayName = "DropdownMenuShortcut"
