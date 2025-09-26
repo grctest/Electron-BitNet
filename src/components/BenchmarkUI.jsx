@@ -44,6 +44,10 @@ export default function BenchmarkUI(properties) {
         if (!window.electron) {
             return;
         }
+        // Ensure any running inference is stopped when entering Benchmark
+        try {
+            window.electron.stopInference();
+        } catch {}
         async function getMaxThreads() {
             const _maxThreads = await window.electron.getMaxThreads();
             setMaxThreads(_maxThreads);

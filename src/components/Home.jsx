@@ -133,11 +133,9 @@ export default function InstructionModel(properties) {
             </div>
         ) : (
             <code
-                // Apply simpler inline styling - let prose handle flow/wrapping
-                // Use a darker background and lighter text for contrast, similar to the highlighted block
                 className={`bg-neutral-800 text-neutral-100 px-1 py-0.5 rounded text-sm font-mono`}
                 style={{
-                    display: 'inline', // Ensure it behaves as inline
+                    display: 'inline',
                     fontFamily: 'var(--font-mono, monospace)',
                     margin: '0 0.1em', // Add slight horizontal margin for spacing
                     padding: '0.1em 0.4em', // Adjust padding slightly (overrides className padding)
@@ -152,8 +150,7 @@ export default function InstructionModel(properties) {
         );
     });
 
-    // Memoized ChatMessage for performance
-    const ChatMessage = React.memo(function ChatMessage({ sender, message, timestamp, onRegenerate, canRegenerate, isFirstAiMessage, onDelete, generationTime }) { // Added generationTime prop
+    const ChatMessage = React.memo(function ChatMessage({ sender, message, timestamp, onRegenerate, canRegenerate, isFirstAiMessage, onDelete, generationTime, showCopyButton = true, showDeleteButton = true }) {
         const { t } = useTranslation(locale.get(), { i18n: i18nInstance });
         const isUser = sender === 'user';
         const senderName = isUser ? t("InstructionModel:you") : t("InstructionModel:ai");
@@ -171,18 +168,16 @@ export default function InstructionModel(properties) {
 
         const formattedTime = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : '';
         const iconButtonStyle = "rounded bg-muted p-1.5 hover:bg-primary/20 transition-colors border border-border flex items-center justify-center focus:outline-none focus:ring-1 focus:ring-primary"; // Adjusted style slightly
-        const iconButtonSize = { width: 28, height: 28 }; // Adjusted size slightly
+        const iconButtonSize = { width: 28, height: 28 };
 
         return (
             <div className={`flex flex-col gap-1 p-2 w-full max-w-full`}>
                 <div className={`flex items-start gap-2 w-full max-w-full min-w-0 ${isUser ? 'justify-end flex-row-reverse' : ''}`}>
-                    {/* Avatar */}
                     <div className="flex-shrink-0">
                         <Avatar className="w-8 h-8 border mt-1">
                             <AvatarFallback>{avatarText}</AvatarFallback>
                         </Avatar>
                     </div>
-                    {/* Message Bubble & Content */}
                     <div className={`flex flex-col min-w-0 rounded-lg text-sm ${isUser ? 'ml-auto bg-primary text-primary-foreground max-w-[75%]' : 'flex-1 bg-muted max-w-full'} transition-all duration-300 ease-in-out`}>
                         <div className="p-3 break-words overflow-x-auto" style={{ maxWidth: '100%', boxSizing: 'border-box', overflowX: 'auto' }}>
                             <p className="font-semibold mb-1">{senderName}</p>
@@ -194,41 +189,37 @@ export default function InstructionModel(properties) {
                                 </div>
                             )}
                         </div>
-                        {/* Action buttons for AI only, moved below content */}
                         {!isUser && (
                             <div className="flex items-center gap-1.5 flex-shrink-0 p-2 border-t border-border/50 mt-1 pt-1">
-                                {
-                                    !isAiResponding
-                                        ? <>
-                                            <button
-                                                className={iconButtonStyle}
-                                                title={copied ? t('InstructionModel:copied') : t('InstructionModel:copy')}
-                                                onClick={handleCopy}
-                                                style={iconButtonSize}
-                                                disabled={copied}
-                                                tabIndex={0}
-                                            >
-                                                {copied ? <CheckIcon className="h-3.5 w-3.5 text-green-500" /> : <ClipboardCopyIcon className="h-3.5 w-3.5" />}
-                                            </button>
-                                            <button
-                                                className={iconButtonStyle}
-                                                title={t('InstructionModel:deleteResponse')}
-                                                onClick={onDelete}
-                                                style={iconButtonSize}
-                                                tabIndex={0}
-                                            >
-                                                <TrashIcon className="h-3.5 w-3.5 text-red-500" />
-                                            </button>
-                                        </>
-                                        : null
-                                }
+                                {showCopyButton && (
+                                    <button
+                                        className={iconButtonStyle}
+                                        title={copied ? t('InstructionModel:copied') : t('InstructionModel:copy')}
+                                        onClick={handleCopy}
+                                        style={iconButtonSize}
+                                        disabled={copied}
+                                        tabIndex={0}
+                                    >
+                                        {copied ? <CheckIcon className="h-3.5 w-3.5 text-green-500" /> : <ClipboardCopyIcon className="h-3.5 w-3.5" />}
+                                    </button>
+                                )}
+                                {showDeleteButton && (
+                                    <button
+                                        className={iconButtonStyle}
+                                        title={t('InstructionModel:deleteResponse')}
+                                        onClick={onDelete}
+                                        style={iconButtonSize}
+                                        tabIndex={0}
+                                    >
+                                        <TrashIcon className="h-3.5 w-3.5 text-red-500" />
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
-                {/* Timestamp and Generation Time (only for AI) */}
                 <div className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mt-1 px-2 items-center gap-2`}>
-                    {!isUser && ( // Only show timestamp and generation time for AI
+                    {!isUser && (
                         <>
                             <span className="text-xs text-muted-foreground">{formattedTime}</span>
                             {generationTime !== undefined && (
@@ -239,7 +230,6 @@ export default function InstructionModel(properties) {
                             )}
                         </>
                     )}
-                    {/* Removed timestamp for user messages */}
                 </div>
             </div>
         );
@@ -282,7 +272,7 @@ export default function InstructionModel(properties) {
                 <div style={style} {...ariaAttributes}>
                     <div ref={setMeasuredNode}>
                         <ChatMessage sender="ai" message={t("InstructionModel:typing")}
-                            timestamp={new Date()} />
+                            timestamp={new Date()} showCopyButton={false} showDeleteButton={false} />
                     </div>
                 </div>
             );
@@ -303,6 +293,15 @@ export default function InstructionModel(properties) {
             && index > 0
             && chatHistory.slice(0, index).some((msg) => msg.sender === 'user');
 
+        const latestAiIndex = chatHistory.map((m, i) => ({ i, s: m.sender })).filter(o => o.s === 'ai').map(o => o.i).pop();
+        const isLatestAiMessage = message.sender === 'ai' && index === latestAiIndex;
+        const showCopyButton = message.sender === 'ai'
+            ? (!isAiResponding || (isAiResponding && !isLatestAiMessage))
+            : false;
+        const showDeleteButton = message.sender === 'ai'
+            ? (!isAiResponding)
+            : false;
+
         return (
             <div style={style} {...ariaAttributes}>
                 <div ref={setMeasuredNode}>
@@ -313,31 +312,29 @@ export default function InstructionModel(properties) {
                         canRegenerate={canRegen}
                         onRegenerate={() => handleRegenerate(index)}
                         onDelete={() => handleDeleteMessage(index)}
+                        showCopyButton={showCopyButton}
+                        showDeleteButton={showDeleteButton}
                     />
                 </div>
             </div>
         );
     });
 
-    // --- Effects ---
     useEffect(() => {
         if (!window.electron) return;
         async function getMaxThreads() {
             const _maxThreads = await window.electron.getMaxThreads();
             setMaxThreads(_maxThreads);
-            // Set default threads to a reasonable value based on maxThreads
             setThreads(Math.max(1, Math.min(4, Math.floor(_maxThreads / 2))));
         }
         getMaxThreads();
     }, []);
 
-    // Scroll to bottom when chat history updates, unless user has scrolled up
     useEffect(() => {
         if (!autoScroll || !chatListRef.current || chatHistory.length === 0) return;
         chatListRef.current.scrollToRow({ index: chatHistory.length - 1, align: 'end' });
     }, [chatHistory, autoScroll]);
 
-    // Handler to detect user scroll and toggle autoScroll
     const handleChatScroll = useCallback(() => {
         const scrollViewport = chatListRef.current?.element;
         if (!scrollViewport) return;
@@ -345,14 +342,12 @@ export default function InstructionModel(properties) {
         setAutoScroll(atBottom);
     }, []);
 
-    // Refocus input after AI finishes
     useEffect(() => {
         if (!isAiResponding && conversationActive && inputRef.current) {
             inputRef.current.focus();
         }
     }, [isAiResponding, conversationActive]);
 
-    // Setup IPC listeners
     useEffect(() => {
         if (!window.electron) return;
 
@@ -364,12 +359,11 @@ export default function InstructionModel(properties) {
 
         const removeAiResponseChunk = window.electron.onAiResponseChunk((chunk) => {
             setIsAiResponding(true);
-            let updatedIndex = -1; // Keep track of the index that was updated
+            let updatedIndex = -1;
             setChatHistory((prevHistory) => {
                 const lastMessage = prevHistory[prevHistory.length - 1];
                 if (lastMessage && lastMessage.sender === 'ai') {
                     updatedIndex = prevHistory.length - 1;
-                    // Append to existing AI message (timestamp remains the same)
                     return prevHistory.map((msg, index) =>
                         index === updatedIndex
                             ? { ...msg, message: msg.message + chunk }
@@ -377,28 +371,25 @@ export default function InstructionModel(properties) {
                     );
                 } else {
                     updatedIndex = prevHistory.length;
-                    // Start new AI message with timestamp
                     return [...prevHistory, { sender: 'ai', message: chunk, timestamp: new Date() }];
                 }
             });
 
-            // Explicitly trigger row-height recalculation
             if (updatedIndex !== -1) {
                 requestAnimationFrame(() => {
                     setListVersion((version) => version + 1);
                 });
             }
 
-            // Basic check if the AI is waiting for input
             if (chunk.trim().endsWith('>')) {
                  setIsAiResponding(false);
-                 // Clean up the prompt indicator
+
                  setChatHistory((prevHistory) => {
                     const lastMessage = prevHistory[prevHistory.length - 1];
                     if (lastMessage && lastMessage.sender === 'ai') {
-                        // Corrected: Use lastMessage instead of msg
+
                         const cleanedMessage = lastMessage.message.replace(/>\s*$/, '').trimEnd();
-                        // Only update if message actually changed
+
                         if (cleanedMessage !== lastMessage.message) {
                             const finalIndex = prevHistory.length - 1;
                             const updatedHistory = prevHistory.map((msg, index) =>
@@ -406,7 +397,6 @@ export default function InstructionModel(properties) {
                                     ? { ...msg, message: cleanedMessage }
                                     : msg
                             );
-                            // Remeasure after cleaning up the prompt indicator as well
                             requestAnimationFrame(() => {
                                 setListVersion((version) => version + 1);
                             });
@@ -419,7 +409,6 @@ export default function InstructionModel(properties) {
         });
 
         const removeAiError = window.electron.onAiError((errorMsg) => {
-            // Add error message with timestamp
             setChatHistory((prev) => [...prev, { sender: 'ai', message: `Error: ${errorMsg}`, timestamp: new Date() }]);
             setConversationActive(false);
             setIsAiResponding(false);
@@ -429,7 +418,6 @@ export default function InstructionModel(properties) {
             console.log("Instruction mode completed/terminated by backend.");
             setConversationActive(false);
             setIsAiResponding(false);
-            // Check if the last message was only the prompt indicator
              setChatHistory((prevHistory) => {
                 const lastMessage = prevHistory[prevHistory.length - 1];
                 if (lastMessage && lastMessage.sender === 'ai' && lastMessage.message.trim() === '>') {
@@ -439,46 +427,43 @@ export default function InstructionModel(properties) {
              });
         });
 
-        // Cleanup listeners on component unmount
         return () => {
             removeAiInstructStarted();
             removeAiResponseChunk();
             removeAiError();
             removeAiInstructComplete();
-            // Ensure process is stopped if component unmounts while active
             if (conversationActive && window.electron) {
                 window.electron.stopInference();
             }
         };
-    }, [conversationActive]); // Rerun if conversationActive changes to ensure cleanup works correctly
+    }, [conversationActive]);
 
     const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
 
-    // --- Handlers ---
     const handleFileSelect = async () => {
-        if (conversationActive || isFileDialogOpen) return; // Prevent opening if already open or in conversation
-        setIsFileDialogOpen(true); // Disable button
+        if (conversationActive || isFileDialogOpen) return;
+        setIsFileDialogOpen(true);
         try {
             const filePaths = await window.electron.openFileDialog();
             if (filePaths.length > 0) {
                 setModel(filePaths[0]);
             }
         } catch (error) {
-            console.error("Error opening file dialog:", error); // Optional: Log errors
+            console.error("Error opening file dialog:", error);
         } finally {
-            setIsFileDialogOpen(false); // Re-enable button regardless of outcome
+            setIsFileDialogOpen(false);
         }
     };
 
     const handleStartConversation = () => {
         if (!model || !systemPrompt || conversationActive) return;
-        setChatHistory([]); // Clear previous chat
-        setIsAiResponding(true); // Expecting initial output/processing
+        setChatHistory([]);
+        setIsAiResponding(true);
         window.electron.initInstructInference({
             model,
             n_predict: tokenQuantity,
             threads,
-            prompt: systemPrompt, // Use system prompt for initialization
+            prompt: systemPrompt,
             ctx_size: ctxSize,
             temperature,
         });
@@ -487,7 +472,7 @@ export default function InstructionModel(properties) {
     const handleStopConversation = () => {
         if (!conversationActive) return;
         window.electron.stopInference();
-        setChatHistory([]); // Clear chat log when stopping conversation
+        setChatHistory([]);
     };
 
     const handleSendUserMessage = useCallback(() => {
@@ -498,46 +483,39 @@ export default function InstructionModel(properties) {
         let textToWrite = '';
 
         if (trimmedInput.endsWith('\\')) {
-            // Multi-line input: send line without '\' but with newline
             textToWrite = trimmedInput.slice(0, -1) + '\n';
-            messageToSend = trimmedInput.slice(0, -1); // Store message without trailing slash
+            messageToSend = trimmedInput.slice(0, -1);
         } else if (trimmedInput.endsWith('/')) {
-            // Send without newline: send line without '/'
             textToWrite = trimmedInput.slice(0, -1);
-            messageToSend = trimmedInput.slice(0, -1); // Store message without trailing slash
+            messageToSend = trimmedInput.slice(0, -1);
         } else {
-            // Standard input: send line with newline
             textToWrite = trimmedInput + '\n';
         }
 
-        // Add user message with timestamp
         setChatHistory((prev) => [...prev, { sender: 'user', message: messageToSend, timestamp: new Date() }]);
         setCurrentUserInput("");
-        setIsAiResponding(true); // Expect AI response (or prompt)
-        window.electron.sendInstructPrompt(textToWrite); // Send the processed text
+        setIsAiResponding(true);
+        window.electron.sendInstructPrompt(textToWrite);
 
     }, [conversationActive, isAiResponding, currentUserInput]);
 
-    // Handle Enter key press in the input area
     const handleKeyDown = (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault(); // Prevent default newline insertion
+            event.preventDefault();
             handleSendUserMessage();
         }
     };
 
-    // Regenerate handler - Refactored
     const handleRegenerate = useCallback((aiMessageIndex) => {
         if (!conversationActive || isAiResponding) return;
-        // Find the index of the last user message *before* the AI message being regenerated
         const userMessageIndex = chatHistory.slice(0, aiMessageIndex).findLastIndex(msg => msg.sender === 'user');
 
         if (userMessageIndex !== -1) {
             const userPromptMessage = chatHistory[userMessageIndex];
-            const userPromptText = userPromptMessage.message; // This is the message as stored (without trailing / or \)
+            const userPromptText = userPromptMessage.message;
             setChatHistory((prev) => prev.slice(0, userMessageIndex + 1));
             setIsAiResponding(true);
-            const textToWrite = userPromptText + '\\n'; // Send with newline
+            const textToWrite = userPromptText + '\\n';
 
             window.electron.sendInstructPrompt(textToWrite);
         } else {
@@ -545,20 +523,15 @@ export default function InstructionModel(properties) {
         }
     }, [conversationActive, isAiResponding, chatHistory]);
 
-    // --- Delete AI message handler ---
     const handleDeleteMessage = useCallback((index) => {
         setChatHistory(prev => {
-            // If deleting an AI message, also remove the preceding user message and put its text back in the input
             if (prev[index]?.sender === 'ai') {
-                // Find the preceding user message
                 const userIdx = [...prev].slice(0, index).reverse().findIndex(msg => msg.sender === 'user');
                 if (userIdx !== -1) {
                     const realUserIdx = index - 1 - userIdx;
                     const userMsg = prev[realUserIdx]?.message || '';
-                    // Remove both user and ai message
                     const newHistory = prev.filter((_, i) => i !== index && i !== realUserIdx);
                     setCurrentUserInput(userMsg);
-                    // Remove height cache for both
                     delete messageHeights.current[index];
                     delete messageHeights.current[realUserIdx];
                     setListVersion((version) => version + 1);
@@ -566,7 +539,6 @@ export default function InstructionModel(properties) {
                     return newHistory;
                 }
             }
-            // Default: just remove the message
             delete messageHeights.current[index];
             setListVersion((version) => version + 1);
             forceUpdate(n => n + 1);
@@ -574,12 +546,9 @@ export default function InstructionModel(properties) {
         });
     }, []);
 
-    // --- Render ---
     const canStart = model && systemPrompt && !conversationActive;
-    // Calculate firstAiIndex here
     const firstAiIndex = chatHistory.findIndex(msg => msg.sender === 'ai');
 
-    // --- Constants for Estimation (Adjust as needed based on your styling) ---
     const BASE_MESSAGE_HEIGHT = 60; // Increased base for padding, avatar, name, timestamp, actions
     const LINE_HEIGHT = 22;         // Approx height of a single line of text in prose/user message
     const CHARS_PER_LINE = 65;      // Approx chars per line before wrapping (adjust based on font/width)
@@ -588,24 +557,19 @@ export default function InstructionModel(properties) {
     const CODE_LINE_HEIGHT = 20;    // Approx height of a line within a code block
     const ROW_VERTICAL_PADDING = 16; // Buffer to avoid cramped layout after measurement
 
-    // --- Helper to estimate code block height ---
     const estimateCodeBlockHeight = (codeContent) => {
         const lines = (codeContent.match(/\n/g) || []).length + 1;
         return CODE_BLOCK_PADDING + (lines * CODE_LINE_HEIGHT);
     };
 
 
-    // Compute typing indicator visibility early so it can be used below safely
     const showTypingIndicator = isAiResponding && chatHistory.length > 0 && chatHistory[chatHistory.length - 1]?.sender === 'user';
 
-    // --- List rowHeight getter (More Sophisticated Estimation) ---
     const getRowHeight = useCallback(index => {
-        // Handle typing indicator height
         if (index === chatHistory.length) {
-            return showTypingIndicator ? (messageHeights.current[index] ?? 60) : 0; // Prefer measured height when available
+            return showTypingIndicator ? (messageHeights.current[index] ?? 60) : 0;
         }
 
-        // Handle hidden first AI message
         if (index === 0 && chatHistory[0]?.sender === 'ai') {
             if (messageHeights.current[index] !== 0) {
                 messageHeights.current[index] = 0;
@@ -618,16 +582,14 @@ export default function InstructionModel(properties) {
             return cachedHeight;
         }
 
-        // Estimate height based on content for other messages
         const messageData = chatHistory[index];
         if (!messageData || !messageData.message) {
-            return BASE_MESSAGE_HEIGHT + ROW_VERTICAL_PADDING; // Default minimum
+            return BASE_MESSAGE_HEIGHT + ROW_VERTICAL_PADDING;
         }
 
         const message = messageData.message;
         let estimatedHeight = BASE_MESSAGE_HEIGHT;
 
-        // Separate code blocks from the rest of the text for estimation
         const codeBlockRegex = /```([\s\S]*?)```/g;
         let codeBlockMatch;
         let nonCodeText = message;
@@ -636,41 +598,31 @@ export default function InstructionModel(properties) {
         while ((codeBlockMatch = codeBlockRegex.exec(message)) !== null) {
             const codeContent = codeBlockMatch[1] || '';
             totalCodeBlockHeight += estimateCodeBlockHeight(codeContent);
-            // Remove the code block from the text we use for line estimation
             nonCodeText = nonCodeText.replace(codeBlockMatch[0], '');
         }
 
-        // Estimate height for non-code text
         if (nonCodeText.trim()) {
             const newlineCount = (nonCodeText.match(/\n/g) || []).length;
-            const paragraphCount = (nonCodeText.match(/\n\n+/g) || []).length; // Count double+ newlines
+            const paragraphCount = (nonCodeText.match(/\n\n+/g) || []).length;
 
-            // Estimate lines based on characters, ensuring at least 1 line if there's text
             const charLines = Math.max(1, Math.ceil(nonCodeText.trim().length / CHARS_PER_LINE));
-            // Estimate lines based on explicit newlines
             const newlineLines = Math.max(1, newlineCount + 1);
 
-            // Use the max of character-based or newline-based line count
             const estimatedLines = Math.max(charLines, newlineLines);
 
             estimatedHeight += (estimatedLines * LINE_HEIGHT);
-            estimatedHeight += (paragraphCount * PARAGRAPH_SPACING); // Add paragraph spacing
+            estimatedHeight += (paragraphCount * PARAGRAPH_SPACING);
         }
 
-        // Add the estimated height of all code blocks
         estimatedHeight += totalCodeBlockHeight;
 
-        // Use cached height if available and larger than estimate (measurement is king)
-        // Return the estimated height, ensuring a minimum, plus padding buffer
         return Math.max(estimatedHeight, BASE_MESSAGE_HEIGHT) + ROW_VERTICAL_PADDING;
 
-    }, [chatHistory, showTypingIndicator]); // Dependencies: chatHistory and typing indicator state
+    }, [chatHistory, showTypingIndicator]);
 
-    // --- List row measurer ---
     const measureRow = useCallback((index, node) => {
         if (!node) return;
 
-        // Keep hidden first AI message collapsed
         if (index === 0 && chatHistory[0]?.sender === 'ai') {
             if (messageHeights.current[index] !== 0) {
                 messageHeights.current[index] = 0;
@@ -693,17 +645,14 @@ export default function InstructionModel(properties) {
         }
     }, [chatHistory]);
 
-    // --- Scroll to bottom if autoScroll ---
     useEffect(() => {
         if (!autoScroll || !chatListRef.current) return;
-        // Determine the target index based on whether the typing indicator is shown
-        const targetIndex = chatHistory.length + (showTypingIndicator ? 0 : -1); // Scroll to typing or last message
+        const targetIndex = chatHistory.length + (showTypingIndicator ? 0 : -1);
         if (targetIndex >= 0) {
             chatListRef.current.scrollToRow({ index: targetIndex, align: 'end' });
         }
     }, [chatHistory, autoScroll, showTypingIndicator]);
 
-    // --- Calculate rowCount for the List ---
     const rowCount = chatHistory.length + (showTypingIndicator ? 1 : 0);
 
     const rowProps = useMemo(() => ({
@@ -729,17 +678,12 @@ export default function InstructionModel(properties) {
         listVersion,
     ]);
 
-
-
-
     return (
         <div className="container mx-auto mt-3 mb-5 relative max-w-full px-1 sm:px-2 md:px-4 lg:px-8 xl:px-16">
             <Card className="overflow-hidden">
                 <div className="grid h-[calc(100vh-120px)]" style={{ gridTemplateColumns: sidebarOpen ? 'minmax(260px, 340px) 1fr' : '0px 1fr' }}>
-                    {/* Collapsible Left Panel: Settings */}
                     <div className={`transition-all duration-300 ease-in-out border-r flex flex-col gap-4 overflow-y-auto bg-background z-10 ${sidebarOpen ? 'p-4 min-w-[260px] max-w-md' : 'w-0 min-w-0 max-w-0 p-0 border-0 overflow-hidden'}`}
                         style={{ position: 'relative' }}>
-                        {/* Sidebar is always open until conversationActive, then can be closed */}
                         {(sidebarOpen || !conversationActive) && (
                             <>
                                 <div className="flex items-center justify-between mb-2">
@@ -803,9 +747,9 @@ export default function InstructionModel(properties) {
                                         <Input type="number" value={temperature} step={0.1} min={0} max={2} disabled={conversationActive} onInput={(e) => setTemperature(parseFloat(e.currentTarget.value) || 0)} />
                                     </div>
                                 </div>
-                                <div className="mt-auto pt-4 space-y-2"> {/* Push buttons to bottom */}
+                                <div className="mt-auto pt-4 space-y-2">
                                      <Button onClick={handleStartConversation} disabled={!canStart || isAiResponding} className="w-full">
-                                        {isAiResponding && !conversationActive ? ( // Show loading only during initial start
+                                        {isAiResponding && !conversationActive ? (
                                             <span className="flex items-center gap-2">
                                                 <ReloadIcon className="animate-spin" /> {t("InstructionModel:starting")}
                                             </span>
@@ -820,12 +764,10 @@ export default function InstructionModel(properties) {
                             </>
                         )}
                     </div>
-                    {/* Right Panel: Chat */}
                     <div className="flex flex-col h-full min-w-0">
                         <CardHeader className="p-4 border-b flex justify-start gap-2">
 
                             <CardTitle className="text-left">
-                                                        {/* Sidebar open button (to left of chat title, only when closed and conversation active) */}
                             {!sidebarOpen && conversationActive && (
                                 <Button
                                     variant="outline"
